@@ -667,9 +667,7 @@ img {
 .action-sprite,
 .hero-sprite {
   display: block;
-  background-image: var(--sprite-image);
-  background-size: 720% 520%;
-  background-repeat: no-repeat;
+  object-fit: contain;
   filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.2));
 }
 
@@ -688,42 +686,6 @@ img {
   z-index: 1;
   width: 112px;
   height: 112px;
-}
-
-.sprite-idle {
-  background-position: 8% 16%;
-}
-
-.sprite-coding {
-  background-position: 8% 67%;
-}
-
-.sprite-run {
-  background-position: 57% 16%;
-}
-
-.sprite-meal {
-  background-position: 14% 92%;
-}
-
-.sprite-rest {
-  background-position: 86% 44%;
-}
-
-.sprite-goout {
-  background-position: 78% 16%;
-}
-
-.sprite-sleep {
-  background-position: 86% 44%;
-}
-
-.sprite-happy {
-  background-position: 50% 43%;
-}
-
-.sprite-reading {
-  background-position: 72% 43%;
 }
 
 .inventory-area {
@@ -845,13 +807,14 @@ img {
   border-radius: 28px;
   padding: 8px 10px;
   display: grid;
-  grid-template-columns: 72px 1fr 72px;
+  grid-template-columns: 1fr 72px;
   align-items: center;
   gap: 8px;
 }
 
 .side-button {
   position: relative;
+  width: 72px;
   height: 62px;
   border: 0;
   border-radius: 18px;
@@ -1234,6 +1197,7 @@ img {
   }
 
   .side-button {
+    width: 54px;
     height: 76px;
   }
 
@@ -1393,15 +1357,11 @@ img {
     left: 10px;
     right: 10px;
     bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 54px;
     min-height: auto;
     padding: 10px;
     gap: 10px;
     border-radius: 22px;
-  }
-
-  .side-button {
-    display: none;
   }
 
   .action-row {
@@ -1426,4 +1386,3 @@ img {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
-

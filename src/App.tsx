@@ -26,7 +26,6 @@ interface Action {
   id: ActionId;
   label: string;
   icon: string;
-  spriteClass: string;
   bubble: string;
   result: string;
   shortageText: string;
@@ -44,7 +43,7 @@ interface Action {
 interface MiniScene {
   id: string;
   label: string;
-  spriteClass: string;
+  spriteSrc: string;
   bubble: string;
   className: string;
 }
@@ -94,32 +93,45 @@ function asset(path: string) {
 }
 
 const ASSETS = {
-  profile: asset("assets/kiun/profile-main.png"),
+  profile: asset("assets/kiun/ui/avatar-profile.png"),
   cover: asset("assets/kiun/cover-art.png"),
-  sprite: asset("assets/kiun/sprites/sprite-hero.png"),
-  emotion: asset("assets/kiun/sprites/sprite-hero.png"),
 };
 
 const UI_ICON_MAP = {
-  calendar: asset("assets/kiun/ui/ui-calendar.png"),
   gift: asset("assets/kiun/ui/ui-gift.png"),
 };
 
 const ACTION_ICON_MAP: Record<ActionId, string> = {
-  coding: asset("assets/kiun/actions/action-work.png"),
+  coding: asset("assets/kiun/actions/action-coding.png"),
   exercise: asset("assets/kiun/actions/action-exercise.png"),
-  meal: asset("assets/kiun/actions/action-food.png"),
-  rest: asset("assets/kiun/actions/action-play.png"),
-  goout: asset("assets/kiun/actions/action-travel.png"),
+  meal: asset("assets/kiun/actions/action-meal.png"),
+  rest: asset("assets/kiun/actions/action-rest.png"),
+  goout: asset("assets/kiun/actions/action-goout.png"),
   sleep: asset("assets/kiun/actions/action-sleep.png"),
 };
 
+const HERO_SPRITE_MAP: Record<ActionId | "idle", string> = {
+  idle: asset("assets/kiun/sprites/idle-front.png"),
+  coding: asset("assets/kiun/sprites/laptop.png"),
+  exercise: asset("assets/kiun/sprites/happy.png"),
+  meal: asset("assets/kiun/sprites/coffee.png"),
+  rest: asset("assets/kiun/sprites/sit.png"),
+  goout: asset("assets/kiun/sprites/walk-right-1.png"),
+  sleep: asset("assets/kiun/sprites/sleepy.png"),
+};
+
+const MINI_SCENE_SPRITE_MAP = {
+  coding: asset("assets/kiun/sprites/laptop.png"),
+  exercise: asset("assets/kiun/sprites/happy.png"),
+  reading: asset("assets/kiun/sprites/thinking.png"),
+};
+
 const INVENTORY_ICON_MAP: Record<string, string> = {
-  laptop: asset("assets/kiun/items/item-book.png"),
-  coffee: asset("assets/kiun/items/item-drink.png"),
-  book: asset("assets/kiun/items/item-book.png"),
-  earphone: asset("assets/kiun/items/item-accessory.png"),
-  plant: asset("assets/kiun/items/item-toy.png"),
+  laptop: asset("assets/kiun/items/item-laptop.png"),
+  coffee: asset("assets/kiun/items/item-coffee.png"),
+  book: asset("assets/kiun/items/item-book.svg"),
+  earphone: asset("assets/kiun/items/item-earphone.png"),
+  plant: asset("assets/kiun/items/item-plant.png"),
   locked: asset("assets/kiun/items/item-locked.png"),
 };
 
@@ -190,7 +202,6 @@ const ACTIONS: Action[] = [
     id: "coding",
     label: "코딩하기",
     icon: "💻",
-    spriteClass: "sprite-coding",
     bubble: "집중중...",
     result: "코딩 2시간 완료. 오늘도 한 뼘 성장 중!",
     shortageText: "지금은 집중할 에너지가 부족해. 밥먹기나 쉬기를 먼저 하자.",
@@ -212,7 +223,6 @@ const ACTIONS: Action[] = [
     id: "exercise",
     label: "운동하기",
     icon: "🏃",
-    spriteClass: "sprite-run",
     bubble: "운동 완료!",
     result: "몸을 움직였더니 머리도 맑아졌다.",
     shortageText: "지금 체력이 너무 낮아. 먼저 밥먹기나 쉬기를 하자.",
@@ -234,7 +244,6 @@ const ACTIONS: Action[] = [
     id: "meal",
     label: "밥먹기",
     icon: "🍚",
-    spriteClass: "sprite-meal",
     bubble: "냠냠~",
     result: "든든하게 먹었다. 에너지가 회복됐다.",
     shortageText: "코인이 부족해서 밥을 먹기 어렵다. 코딩으로 조금 벌자.",
@@ -256,7 +265,6 @@ const ACTIONS: Action[] = [
     id: "rest",
     label: "쉬기",
     icon: "🛋️",
-    spriteClass: "sprite-rest",
     bubble: "쉬는 중",
     result: "쉬는 것도 전략이다. 기분이 부드러워졌다.",
     shortageText: "쉴 수 없는 상태는 없어. 지금 바로 쉬어도 된다.",
@@ -278,7 +286,6 @@ const ACTIONS: Action[] = [
     id: "goout",
     label: "외출하기",
     icon: "🚶",
-    spriteClass: "sprite-goout",
     bubble: "다녀올게!",
     result: "바깥 공기를 쐬고 왔다. 사회성이 올랐다.",
     shortageText: "지금은 나갈 힘이나 코인이 부족하다. 회복을 먼저 하자.",
@@ -300,7 +307,6 @@ const ACTIONS: Action[] = [
     id: "sleep",
     label: "잠자기",
     icon: "🌙",
-    spriteClass: "sprite-sleep",
     bubble: "쿨쿨...",
     result: "푹 잤다. 내일도 다시 성장할 수 있다.",
     shortageText: "잠은 언제든 잘 수 있다.",
@@ -324,21 +330,21 @@ const MINI_SCENES: MiniScene[] = [
   {
     id: "coding",
     label: "코딩",
-    spriteClass: "sprite-coding",
+    spriteSrc: MINI_SCENE_SPRITE_MAP.coding,
     bubble: "집중중...",
     className: "mini-coding",
   },
   {
     id: "exercise",
     label: "운동",
-    spriteClass: "sprite-happy",
+    spriteSrc: MINI_SCENE_SPRITE_MAP.exercise,
     bubble: "운동 완료!",
     className: "mini-exercise",
   },
   {
     id: "reading",
     label: "독서",
-    spriteClass: "sprite-reading",
+    spriteSrc: MINI_SCENE_SPRITE_MAP.reading,
     bubble: "독서 중",
     className: "mini-reading",
   },
@@ -533,7 +539,7 @@ function App() {
   }, [game.currentAction]);
 
   const expPercent = clamp((game.exp / game.expToNext) * 100);
-  const heroSpriteClass = selectedAction?.spriteClass ?? "sprite-idle";
+  const heroSpriteSrc = HERO_SPRITE_MAP[selectedAction?.id ?? "idle"];
   const heroAchievements = game.achievements.slice(-3);
   const heroCondition =
     game.energy >= 75 ? "컨디션 좋음" : game.energy >= 40 ? "무난함" : "충전 필요";
@@ -740,9 +746,6 @@ function App() {
   return (
     <div
       className="game-root"
-      style={
-        { "--sprite-image": `url(${ASSETS.sprite})` } as React.CSSProperties
-      }
     >
       <div
         className="game-background"
@@ -869,7 +872,7 @@ function App() {
 
             <div className="hero-avatar-shell">
               <div className="hero-aura" />
-              <span className={`hero-sprite ${heroSpriteClass}`} />
+              <img className="hero-sprite" src={heroSpriteSrc} alt="" />
             </div>
 
             <div className="hero-caption">
@@ -897,7 +900,7 @@ function App() {
           {MINI_SCENES.map((scene) => (
             <div className={`mini-character ${scene.className}`} key={scene.id}>
               <div className="mini-bubble">{scene.bubble}</div>
-              <span className={`mini-sprite ${scene.spriteClass}`} />
+              <img className="mini-sprite" src={scene.spriteSrc} alt="" />
             </div>
           ))}
         </section>
@@ -937,13 +940,6 @@ function App() {
       </main>
 
       <nav className="bottom-actions">
-        <button className="side-button is-muted" type="button" disabled>
-          <span className="side-button-art">
-            <img src={UI_ICON_MAP.calendar} alt="" />
-          </span>
-          <small>일정</small>
-        </button>
-
         <div className="action-row">
           {ACTIONS.map((action) => (
             <button
