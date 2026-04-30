@@ -1,25 +1,25 @@
-이 디렉토리에 아래 이미지들을 넣어주세요.
+# Kiun Element Assets v3 Reviewed
 
-필수 파일명:
+이전 패키지를 실제로 열어본 뒤 다시 만든 검수본입니다.
 
-1. real-1.jpg
-2. cover-art.png
-3. pixel-sprite.png
-4. emotion-sheet.png
+## 수정한 문제
+- 잘린 스프라이트 수정
+- row2 상단에 붙어 있던 이전 줄 라벨 제거
+- action-meal이 얼굴만 잘리던 문제 수정
+- item-coffee 0B 문제 제거
+- 소지품 아이콘을 실제 UI mockup에서 다시 분리
+- 검수용 contact sheet 포함
 
-권장 매핑:
+## Main
+- real-1.jpg
+- cover-art.png
+- background-room.jpg
+- pixel-sprite.png
+- emotion-sheet.png
 
-- real-1.jpg : 대표 실사 프로필
-- cover-art.png : 이기운 키우기 커버/방 배경 이미지
-- pixel-sprite.png : 픽셀/도트 스프라이트 이미지
-- emotion-sheet.png : 감정 시트 이미지
-
-주의:
-- 코드에서는 위 파일명을 그대로 참조합니다.
-- 파일명이 다르면 src/App.tsx 의 ASSETS 경로를 수정하세요.
-- GitHub Pages 배포를 위해 vite.config.ts 의 base는 "./"로 설정합니다.
-
-추천:
-- cover-art.png는 넓은 16:9 이미지가 가장 좋습니다.
-- pixel-sprite.png는 "이기운 키우기 - Pixel Sprite Set" 이미지를 넣으면 됩니다.
-- emotion-sheet.png는 추후 이벤트 팝업/감정 컷 확장용입니다.
+## Folders
+- sprites/: 캐릭터 개별 스프라이트 PNG
+- actions/: 하단 액션 버튼용 PNG
+- items/: 소지품 아이콘 PNG
+- ui/: 프로필/보조 UI 아이콘
+- previews/: 검수용 contact sheet
