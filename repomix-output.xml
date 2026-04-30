@@ -32,7 +32,7 @@ The content is organized as follows:
 <notes>
 - Some files may have been excluded based on .gitignore rules and Repomix's configuration
 - Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
-- Only files matching these patterns are included: .git, .github, dist, node_modules, public/assets/kiun, public/assets/kiun/emotion-sheet.png, public/assets/kiun/pixel-sprite.png, public/assets/kiun/README.md, public/assets/kiun/real-1.jpg, public/assets/kiun/real-2.jpg, public/assets/kiun/real-3.jpg, public/assets/kiun/real-4.jpg, public/assets/kiun/real-5.jpg, public/assets/kiun/room-ui.png, src, .gitignore, index.html, package-lock.json, package.json, README.md, repomix-output.xml, tsconfig.json, tsconfig.node.json, vite.config.ts
+- Only files matching these patterns are included: .git, .github, dist, node_modules, public/assets/kiun, public/assets/kiun/actions, public/assets/kiun/items, public/assets/kiun/previews, public/assets/kiun/sprites, public/assets/kiun/ui, public/assets/kiun/ASSET_MANIFEST.md, public/assets/kiun/background-room.jpg, public/assets/kiun/cover-art.png, public/assets/kiun/emotion-sheet.png, public/assets/kiun/pixel-sprite.png, public/assets/kiun/README.md, public/assets/kiun/real-1.jpg, public/assets/kiun/real-2.jpg, public/assets/kiun/real-3.jpg, public/assets/kiun/real-4.jpg, public/assets/kiun/real-5.jpg, public/assets/kiun/room-ui.png, src, .gitignore, index.html, kiun_element_assets_v3_reviewed.zip, package-lock.json, package.json, README.md, repomix-output.xml, tsconfig.json, tsconfig.node.json, vite.config.ts
 - Files matching patterns in .gitignore are excluded
 - Files matching default ignore patterns are excluded
 - Files are sorted by Git change count (files with more changes are at the bottom)
@@ -47,6 +47,51 @@ The content is organized as follows:
 public/
   assets/
     kiun/
+      actions/
+        action-coding.png
+        action-exercise.png
+        action-goout.png
+        action-meal.png
+        action-rest.png
+        action-sleep.png
+      items/
+        item-book.png
+        item-coffee.png
+        item-earphone.png
+        item-laptop.png
+        item-locked.png
+        item-plant.png
+      previews/
+        game-elements-contact-sheet.jpg
+        sprites-contact-sheet.jpg
+      sprites/
+        blush.png
+        coffee.png
+        crouch.png
+        determined.png
+        happy.png
+        idle-3q.png
+        idle-front.png
+        laptop.png
+        sit.png
+        sleepy.png
+        smile.png
+        thinking.png
+        tiny-idle.png
+        walk-left-1.png
+        walk-left-2.png
+        walk-left-3.png
+        walk-right-1.png
+        walk-right-2.png
+        walk-right-3.png
+        wink.png
+      ui/
+        avatar-profile.png
+        icon-calendar.png
+        icon-gift.png
+      ASSET_MANIFEST.md
+      background-room.jpg
+      cover-art.png
       emotion-sheet.png
       pixel-sprite.png
       README.md
@@ -63,6 +108,7 @@ src/
   vite-env.d.ts
 .gitignore
 index.html
+kiun_element_assets_v3_reviewed.zip
 package.json
 README.md
 tsconfig.json
@@ -72,6 +118,34 @@ vite.config.ts
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path="public/assets/kiun/ASSET_MANIFEST.md">
+# Kiun Element Assets v3 Reviewed
+
+이전 패키지를 실제로 열어본 뒤 다시 만든 검수본입니다.
+
+## 수정한 문제
+- 잘린 스프라이트 수정
+- row2 상단에 붙어 있던 이전 줄 라벨 제거
+- action-meal이 얼굴만 잘리던 문제 수정
+- item-coffee 0B 문제 제거
+- 소지품 아이콘을 실제 UI mockup에서 다시 분리
+- 검수용 contact sheet 포함
+
+## Main
+- real-1.jpg
+- cover-art.png
+- background-room.jpg
+- pixel-sprite.png
+- emotion-sheet.png
+
+## Folders
+- sprites/: 캐릭터 개별 스프라이트 PNG
+- actions/: 하단 액션 버튼용 PNG
+- items/: 소지품 아이콘 PNG
+- ui/: 프로필/보조 UI 아이콘
+- previews/: 검수용 contact sheet
+</file>
 
 <file path="src/vite-env.d.ts">
 /// <reference types="vite/client" />
@@ -198,6 +272,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
@@ -205,31 +282,164 @@ jobs:
 </file>
 
 <file path="public/assets/kiun/README.md">
-이 디렉토리에 아래 이미지들을 넣어주세요.
+# Kiun Element Assets v3 Reviewed
 
-필수 파일명:
+이전 패키지를 실제로 열어본 뒤 다시 만든 검수본입니다.
 
-1. real-1.jpg
-2. cover-art.png
-3. pixel-sprite.png
-4. emotion-sheet.png
+## 수정한 문제
+- 잘린 스프라이트 수정
+- row2 상단에 붙어 있던 이전 줄 라벨 제거
+- action-meal이 얼굴만 잘리던 문제 수정
+- item-coffee 0B 문제 제거
+- 소지품 아이콘을 실제 UI mockup에서 다시 분리
+- 검수용 contact sheet 포함
 
-권장 매핑:
+## Main
+- real-1.jpg
+- cover-art.png
+- background-room.jpg
+- pixel-sprite.png
+- emotion-sheet.png
 
-- real-1.jpg : 대표 실사 프로필
-- cover-art.png : 이기운 키우기 커버/방 배경 이미지
-- pixel-sprite.png : 픽셀/도트 스프라이트 이미지
-- emotion-sheet.png : 감정 시트 이미지
+## Folders
+- sprites/: 캐릭터 개별 스프라이트 PNG
+- actions/: 하단 액션 버튼용 PNG
+- items/: 소지품 아이콘 PNG
+- ui/: 프로필/보조 UI 아이콘
+- previews/: 검수용 contact sheet
+</file>
 
-주의:
-- 코드에서는 위 파일명을 그대로 참조합니다.
-- 파일명이 다르면 src/App.tsx 의 ASSETS 경로를 수정하세요.
-- GitHub Pages 배포를 위해 vite.config.ts 의 base는 "./"로 설정합니다.
+<file path="src/main.tsx">
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
 
-추천:
-- cover-art.png는 넓은 16:9 이미지가 가장 좋습니다.
-- pixel-sprite.png는 "이기운 키우기 - Pixel Sprite Set" 이미지를 넣으면 됩니다.
-- emotion-sheet.png는 추후 이벤트 팝업/감정 컷 확장용입니다.
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+</file>
+
+<file path="package.json">
+{
+  "name": "kiun-raising-game",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "deploy": "tsc && vite build && gh-pages -d dist"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "gh-pages": "^6.3.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
+  }
+}
+</file>
+
+<file path="README.md">
+# 이기운 키우기
+
+GitHub Pages에서 돌아가는 정적 2D 육성 게임입니다.
+
+코딩하고, 쉬고, 밥 먹고, 운동하고, 외출하면서 이기운을 성장시키는 미니 라이프 시뮬레이션입니다.
+
+## 기능
+
+- 상단 HUD
+  - Lv
+  - EXP
+  - 하트
+  - 에너지
+  - 코인
+  - 시간
+- 좌측 능력치 패널
+  - 집중력
+  - 체력
+  - 기분
+  - 사회성
+  - 코딩력
+- 우측 소지품 패널
+- 오늘의 한마디
+- 하단 행동 버튼
+  - 코딩하기
+  - 운동하기
+  - 밥먹기
+  - 쉬기
+  - 외출하기
+  - 잠자기
+- 이벤트 보상
+- localStorage 자동 저장
+
+## 기술 스택
+
+- React 18
+- TypeScript
+- Vite
+- CSS
+
+## 설치
+
+```bash
+npm install
+```
+
+## 실행
+
+```bash
+npm run dev
+```
+
+## 빌드
+
+```bash
+npm run build
+```
+
+## 배포
+
+```bash
+npm run deploy
+```
+
+## 이미지 준비
+
+`public/assets/kiun/` 디렉토리에 아래 이미지들을 넣어주세요:
+
+- `real-1.jpg` - 대표 실사 프로필
+- `cover-art.png` - 메인 배경/커버 이미지
+- `pixel-sprite.png` - 픽셀/도트 스프라이트 이미지
+- `emotion-sheet.png` - 감정 시트 이미지
+
+## 프로젝트 구조
+
+```
+src/
+├── App.tsx
+├── main.tsx
+└── index.css
+```
+</file>
+
+<file path="vite.config.ts">
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [react()],
+  base: "./",
+});
 </file>
 
 <file path="src/App.tsx">
@@ -451,13 +661,6 @@ const MINI_SCENES: MiniScene[] = [
     className: "mini-coding",
   },
   {
-    id: "meal",
-    label: "밥",
-    spriteClass: "sprite-meal",
-    bubble: "냠냠~",
-    className: "mini-meal",
-  },
-  {
     id: "exercise",
     label: "운동",
     spriteClass: "sprite-happy",
@@ -598,7 +801,7 @@ function App() {
       }
 
       const specialNotice = levelUp
-        ? `Lv.${nextLevel} 달성! 새로운 이벤트가 해금됩니다.` 
+        ? `Lv.${nextLevel} 달성! 새로운 이벤트가 해금됩니다.`
         : action.result;
 
       setToast(levelUp ? `레벨업! Lv.${nextLevel}` : action.result);
@@ -755,11 +958,6 @@ function App() {
         </aside>
 
         <section className="center-stage">
-          <div className="floating-status status-focus">
-            <span className="mini-sprite sprite-coding" />
-            <p>집중중...</p>
-          </div>
-
           <div className="main-bubble">
             {selectedAction ? selectedAction.bubble : game.currentBubble}
           </div>
@@ -818,7 +1016,7 @@ function App() {
               <span className={`action-sprite ${action.spriteClass}`} />
               <strong>{action.label}</strong>
               <small>
-                EXP +{action.expGain} · 에너지 {signed(action.energyDelta)}
+                EXP +{action.expGain} · EN {signed(action.energyDelta)}
               </small>
             </button>
           ))}
@@ -854,6 +1052,25 @@ function App() {
 }
 
 export default App;
+</file>
+
+<file path="index.html">
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>이기운 키우기</title>
+    <meta
+      name="description"
+      content="코딩하고, 쉬고, 성장하는 나만의 캐릭터 육성 게임"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
 </file>
 
 <file path="src/index.css">
@@ -918,9 +1135,10 @@ img {
 .game-root {
   position: relative;
   width: 100vw;
-  height: 100vh;
-  min-width: 1180px;
-  min-height: 720px;
+  min-height: 100dvh;
+  height: 100dvh;
+  min-width: 0;
+  min-height: 0;
   overflow: hidden;
   isolation: isolate;
 }
@@ -972,25 +1190,25 @@ img {
 
 .profile-card {
   width: 404px;
-  height: 92px;
+  height: 72px;
   border-radius: 30px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 12px 18px 12px 12px;
+  gap: 12px;
+  padding: 10px 14px 10px 10px;
 }
 
 .profile-avatar {
   position: relative;
-  width: 72px;
-  height: 72px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
   display: grid;
   place-items: center;
   background: linear-gradient(135deg, #332720, #8a6a56);
-  border: 4px solid rgba(255, 248, 236, 0.88);
+  border: 3px solid rgba(255, 248, 236, 0.88);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
@@ -1004,7 +1222,7 @@ img {
 
 .profile-avatar span {
   color: #fff2de;
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 900;
 }
 
@@ -1022,7 +1240,7 @@ img {
 
 .profile-title span {
   color: #f2c16f;
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 1000;
   letter-spacing: -0.05em;
   text-shadow: 0 2px 0 rgba(80, 52, 38, 0.25);
@@ -1030,7 +1248,7 @@ img {
 
 .profile-title strong {
   color: #fff7ea;
-  font-size: 31px;
+  font-size: 25px;
   font-weight: 1000;
   letter-spacing: -0.04em;
   text-shadow:
@@ -1078,24 +1296,24 @@ img {
 }
 
 .resource-chip {
-  height: 70px;
-  min-width: 182px;
+  height: 52px;
+  min-width: 160px;
   border-radius: 24px;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px 10px 15px;
+  gap: 10px;
+  padding: 8px 10px 8px 12px;
 }
 
 .resource-icon {
-  font-size: 35px;
+  font-size: 28px;
   filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.18));
 }
 
 .resource-chip strong {
   color: #fff8ed;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 1000;
   text-shadow:
     0 2px 0 rgba(63, 46, 37, 0.6),
@@ -1115,17 +1333,17 @@ img {
 }
 
 .time-chip {
-  height: 70px;
-  min-width: 154px;
+  height: 52px;
+  min-width: 130px;
   border-radius: 24px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 17px;
+  gap: 10px;
+  padding: 8px 14px;
 }
 
 .time-chip > span {
-  font-size: 30px;
+  font-size: 24px;
 }
 
 .time-chip div {
@@ -1136,7 +1354,7 @@ img {
 
 .time-chip strong {
   color: #fff4e7;
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 1000;
   text-shadow: 0 2px 0 rgba(67, 48, 38, 0.55);
 }
@@ -1148,17 +1366,17 @@ img {
 }
 
 .setting-button {
-  width: 70px;
-  height: 70px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   border: 3px solid rgba(87, 66, 52, 0.54);
-  font-size: 31px;
+  font-size: 24px;
   cursor: pointer;
 }
 
 .game-screen {
   position: absolute;
-  inset: 120px 22px 138px;
+  inset: 110px 20px 116px;
   display: grid;
   grid-template-columns: 330px 1fr 315px;
   gap: 22px;
@@ -1169,29 +1387,29 @@ img {
 .panel-card {
   pointer-events: auto;
   border-radius: 28px;
-  padding: 17px;
+  padding: 12px;
 }
 
 .stat-panel {
   align-self: start;
-  min-height: 520px;
+  min-height: 440px;
 }
 
 .panel-title {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .panel-title span {
-  font-size: 30px;
+  font-size: 24px;
 }
 
 .panel-title h2 {
   margin: 0;
   color: #6a4d3d;
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 1000;
   letter-spacing: -0.05em;
 }
@@ -1199,11 +1417,11 @@ img {
 .stat-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .stat-item {
-  padding: 13px 14px;
+  padding: 10px 12px;
   border-radius: 18px;
   background: rgba(68, 53, 44, 0.78);
   border: 2px solid rgba(255, 244, 228, 0.14);
@@ -1214,23 +1432,23 @@ img {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 9px;
+  gap: 8px;
+  margin-bottom: 7px;
 }
 
 .stat-icon {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.12);
-  font-size: 23px;
+  font-size: 20px;
 }
 
 .stat-head strong {
   color: white;
-  font-size: 21px;
+  font-size: 18px;
   font-weight: 1000;
   letter-spacing: -0.04em;
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
@@ -1238,20 +1456,20 @@ img {
 
 .stat-head em {
   color: #ffe0a9;
-  font-size: 15px;
+  font-size: 13px;
   font-style: normal;
   font-weight: 900;
 }
 
 .stat-body {
   display: grid;
-  grid-template-columns: 1fr 62px;
+  grid-template-columns: 1fr 54px;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
 }
 
 .stat-meter {
-  height: 18px;
+  height: 14px;
   border-radius: 999px;
   background: rgba(27, 22, 18, 0.76);
   overflow: hidden;
@@ -1286,73 +1504,44 @@ img {
 
 .stat-body small {
   color: #e9d6bf;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
   text-align: right;
 }
 
 .reward-box {
-  margin-top: 15px;
-  padding: 13px 14px;
+  margin-top: 12px;
+  padding: 10px 12px;
   border-radius: 18px;
   background: rgba(255, 248, 236, 0.68);
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .reward-box strong {
   display: block;
   color: #8a623c;
-  font-size: 14px;
-  margin-bottom: 4px;
+  font-size: 13px;
+  margin-bottom: 3px;
 }
 
 .reward-box p {
   margin: 0;
   color: #9b7d65;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
 }
 
 .reward-box > span {
-  font-size: 46px;
+  font-size: 38px;
   filter: drop-shadow(0 7px 8px rgba(0, 0, 0, 0.14));
 }
 
 .center-stage {
   position: relative;
   pointer-events: none;
-}
-
-.floating-status {
-  position: absolute;
-  width: 170px;
-  min-height: 94px;
-  padding: 8px;
-  border-radius: 18px;
-  background: rgba(255, 245, 232, 0.82);
-  border: 2px solid rgba(92, 69, 55, 0.28);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
-}
-
-.status-focus {
-  left: 7%;
-  top: 8%;
-}
-
-.floating-status p {
-  margin: 0;
-  padding: 7px 10px;
-  border-radius: 999px;
-  background: white;
-  color: #4d3e34;
-  font-size: 13px;
-  font-weight: 900;
 }
 
 .main-bubble {
@@ -1365,7 +1554,8 @@ img {
   background: rgba(85, 65, 51, 0.78);
   border: 2px solid rgba(255, 241, 219, 0.38);
   color: #fff8ed;
-  font-size: 17px;
+  font-size: 15px;
+  max-width: 300px;
   font-weight: 900;
   white-space: pre-line;
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
@@ -1393,12 +1583,6 @@ img {
 .mini-coding {
   left: 8%;
   top: 13%;
-}
-
-.mini-meal {
-  left: 2%;
-  bottom: 12%;
-  animation-delay: -1.2s;
 }
 
 .mini-exercise {
@@ -1435,13 +1619,13 @@ img {
 }
 
 .mini-sprite {
-  width: 96px;
-  height: 96px;
+  width: 56px;
+  height: 56px;
 }
 
 .action-sprite {
-  width: 88px;
-  height: 88px;
+  width: 40px;
+  height: 40px;
 }
 
 .sprite-coding {
@@ -1484,19 +1668,19 @@ img {
 }
 
 .inventory-panel {
-  min-height: 466px;
+  min-height: 380px;
 }
 
 .inventory-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
 }
 
 .inventory-item {
   position: relative;
-  min-height: 112px;
-  padding: 12px 8px 9px;
+  min-height: 96px;
+  padding: 10px 6px 8px;
   border-radius: 14px;
   background: rgba(255, 250, 241, 0.82);
   border: 2px solid rgba(133, 102, 78, 0.2);
@@ -1511,13 +1695,13 @@ img {
 }
 
 .inventory-icon {
-  font-size: 38px;
+  font-size: 32px;
   line-height: 1;
 }
 
 .inventory-item strong {
   color: #695041;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 1000;
 }
 
@@ -1535,36 +1719,36 @@ img {
 
 .more-button {
   width: 100%;
-  height: 56px;
-  margin-top: 12px;
+  height: 48px;
+  margin-top: 10px;
   border: 0;
   border-radius: 18px;
   background: linear-gradient(180deg, #a68a73, #8f735e);
   color: #fff5e8;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 1000;
   cursor: pointer;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26);
 }
 
 .message-panel {
-  min-height: 112px;
+  min-height: 96px;
 }
 
 .message-panel h3 {
-  margin: 0 0 9px;
+  margin: 0 0 7px;
   color: #7c5e4b;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 1000;
 }
 
 .message-panel p {
   margin: 0;
-  padding: 13px 14px;
+  padding: 10px 12px;
   border-radius: 14px;
   background: rgba(255, 250, 241, 0.76);
   color: #604b3e;
-  font-size: 15px;
+  font-size: 13px;
   line-height: 1.58;
   font-weight: 800;
   white-space: pre-line;
@@ -1576,18 +1760,18 @@ img {
   right: 22px;
   bottom: 22px;
   z-index: 12;
-  min-height: 112px;
+  min-height: 64px;
   border-radius: 28px;
-  padding: 12px 14px;
+  padding: 6px 8px;
   display: grid;
   grid-template-columns: 74px 1fr 74px;
   align-items: center;
-  gap: 14px;
+  gap: 6px;
 }
 
 .side-button {
   position: relative;
-  height: 86px;
+  height: 48px;
   border: 0;
   border-radius: 18px;
   background: rgba(88, 70, 58, 0.72);
@@ -1602,7 +1786,7 @@ img {
 }
 
 .side-button span {
-  font-size: 31px;
+  font-size: 18px;
 }
 
 .side-button small {
@@ -1623,14 +1807,14 @@ img {
 .action-row {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 13px;
+  gap: 8px;
 }
 
 .action-button {
   position: relative;
-  height: 108px;
+  height: 52px;
   border: 3px solid rgba(112, 84, 65, 0.32);
-  border-radius: 23px;
+  border-radius: 18px;
   background: linear-gradient(180deg, rgba(255, 250, 240, 0.94), rgba(236, 210, 181, 0.94));
   box-shadow:
     0 12px 24px rgba(0, 0, 0, 0.16),
@@ -1641,7 +1825,7 @@ img {
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding: 7px 8px 12px;
+  padding: 4px 5px 6px;
   transition:
     transform 0.15s ease,
     border-color 0.15s ease,
@@ -1649,7 +1833,7 @@ img {
 }
 
 .action-button:hover {
-  transform: translateY(-6px);
+  transform: translateY(-3px);
   border-color: rgba(255, 204, 121, 0.82);
   box-shadow:
     0 18px 30px rgba(0, 0, 0, 0.2),
@@ -1689,17 +1873,18 @@ img {
 
 .action-button strong {
   color: #6d4e3d;
-  font-size: 22px;
+  font-size: 12px;
   font-weight: 1000;
   letter-spacing: -0.05em;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.52);
   white-space: nowrap;
+  line-height: 1.1;
 }
 
 .action-button small {
-  margin-top: 3px;
+  margin-top: 1px;
   color: rgba(89, 64, 49, 0.72);
-  font-size: 10px;
+  font-size: 7px;
   font-weight: 900;
   white-space: nowrap;
 }
@@ -1922,21 +2107,77 @@ img {
   }
 }
 
-@media (max-width: 640px) {
-  .profile-title strong {
-    font-size: 24px;
-  }
-
-  .profile-title span {
-    font-size: 24px;
-  }
-
-  .resource-row {
-    display: none;
+/* ===== 태블릿 / 좁은 가로폭 ===== */
+@media (max-width: 1180px) {
+  body {
+    overflow: auto;
   }
 
   .game-root {
-    min-height: 1100px;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .top-hud {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    padding: 14px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .profile-card {
+    width: 100%;
+  }
+
+  .resource-row {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .resource-chip,
+  .time-chip {
+    flex: 0 0 auto;
+    min-width: 140px;
+  }
+
+  .game-screen {
+    position: relative;
+    inset: auto;
+    padding: 0 14px 160px;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .center-stage {
+    order: -1;
+    min-height: 340px;
+  }
+}
+
+/* ===== 세로모드 대응 ===== */
+@media (orientation: portrait), (max-width: 820px) {
+  body {
+    overflow: auto;
+  }
+
+  .game-root {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .game-screen {
+    position: relative;
+    inset: auto;
+    padding: 0 12px 210px;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .stat-panel,
@@ -1946,187 +2187,138 @@ img {
   }
 
   .center-stage {
-    min-height: 390px;
+    order: -1;
+    min-height: 280px;
   }
 
   .main-bubble {
-    top: 0;
+    top: 2px;
     font-size: 13px;
+    max-width: 240px;
   }
 
-  .floating-status {
-    display: none;
-  }
-
-  .mini-sprite {
-    width: 72px;
-    height: 72px;
-  }
-
-  .mini-bubble {
-    font-size: 11px;
+  .mini-character {
+    transform: scale(0.74);
   }
 
   .bottom-actions {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
     grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 10px;
+    gap: 10px;
+    border-radius: 22px;
   }
 
   .side-button {
     display: none;
   }
-}
-</file>
 
-<file path="src/main.tsx">
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
+  .action-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-</file>
+  .action-button {
+    height: 78px;
+  }
 
-<file path="package.json">
-{
-  "name": "kiun-raising-game",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "deploy": "tsc && vite build && gh-pages -d dist"
-  },
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
-  "devDependencies": {
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
-    "gh-pages": "^6.3.0",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.3"
+  .action-sprite {
+    display: none;
   }
 }
-</file>
 
-<file path="README.md">
-# 이기운 키우기
+@media (max-width: 1320px) {
+  .game-root {
+    min-width: 100vw;
+    min-height: 700px;
+  }
 
-GitHub Pages에서 돌아가는 정적 2D 육성 게임입니다.
+  .resource-chip {
+    min-width: 142px;
+  }
 
-코딩하고, 쉬고, 밥 먹고, 운동하고, 외출하면서 이기운을 성장시키는 미니 라이프 시뮬레이션입니다.
+  .resource-chip strong {
+    font-size: 18px;
+  }
 
-## 기능
+  .game-screen {
+    grid-template-columns: 295px 1fr 285px;
+  }
 
-- 상단 HUD
-  - Lv
-  - EXP
-  - 하트
-  - 에너지
-  - 코인
-  - 시간
-- 좌측 능력치 패널
-  - 집중력
-  - 체력
-  - 기분
-  - 사회성
-  - 코딩력
-- 우측 소지품 패널
-- 오늘의 한마디
-- 하단 행동 버튼
-  - 코딩하기
-  - 운동하기
-  - 밥먹기
-  - 쉬기
-  - 외출하기
-  - 잠자기
-- 이벤트 보상
-- localStorage 자동 저장
+  .action-button strong {
+    font-size: 18px;
+  }
+}
 
-## 기술 스택
+@media (max-width: 1080px) {
+  body {
+    overflow: auto;
+  }
 
-- React 18
-- TypeScript
-- Vite
-- CSS
+  .game-root {
+    min-height: 1180px;
+    height: auto;
+    overflow: hidden;
+  }
 
-## 설치
+  .top-hud {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    padding: 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-```bash
-npm install
-```
+  .profile-card {
+    width: 100%;
+  }
 
-## 실행
+  .resource-row {
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
 
-```bash
-npm run dev
-```
+  .resource-chip,
+  .time-chip {
+    flex: 0 0 auto;
+  }
 
-## 빌드
+  .game-screen {
+    position: relative;
+    inset: auto;
+    padding: 0 16px 150px;
+    grid-template-columns: 1fr;
+  }
 
-```bash
-npm run build
-```
+  .center-stage {
+    min-height: 460px;
+    order: -1;
+  }
 
-## 배포
+  .bottom-actions {
+    gap: 10px;
+  }
 
-```bash
-npm run deploy
-```
+  .mini-character {
+    transform: scale(0.82);
+  }
 
-## 이미지 준비
+  .mini-coding {
+    left: 6%;
+    top: 10%;
+  }
 
-`public/assets/kiun/` 디렉토리에 아래 이미지들을 넣어주세요:
-
-- `real-1.jpg` - 대표 실사 프로필
-- `cover-art.png` - 메인 배경/커버 이미지
-- `pixel-sprite.png` - 픽셀/도트 스프라이트 이미지
-- `emotion-sheet.png` - 감정 시트 이미지
-
-## 프로젝트 구조
-
-```
-src/
-├── App.tsx
-├── main.tsx
-└── index.css
-```
-</file>
-
-<file path="vite.config.ts">
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-
-export default defineConfig({
-  plugins: [react()],
-  base: "./",
-});
-</file>
-
-<file path="index.html">
-<!doctype html>
-<html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>이기운 키우기</title>
-    <meta
-      name="description"
-      content="코딩하고, 쉬고, 성장하는 나만의 캐릭터 육성 게임"
-    />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+  .mini-exercise {
+    right: 8%;
+    top: 12%;
+  }
+}
 </file>
 
 </files>

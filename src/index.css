@@ -316,24 +316,24 @@ img {
 
 .stat-panel {
   align-self: start;
-  min-height: 440px;
+  min-height: 380px;
 }
 
 .panel-title {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .panel-title span {
-  font-size: 24px;
+  font-size: 20px;
 }
 
 .panel-title h2 {
   margin: 0;
   color: #6a4d3d;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 1000;
   letter-spacing: -0.05em;
 }
@@ -341,11 +341,11 @@ img {
 .stat-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .stat-item {
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: 18px;
   background: rgba(68, 53, 44, 0.78);
   border: 2px solid rgba(255, 244, 228, 0.14);
@@ -356,23 +356,23 @@ img {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 7px;
+  gap: 6px;
+  margin-bottom: 5px;
 }
 
 .stat-icon {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: grid;
   place-items: center;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.12);
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .stat-head strong {
   color: white;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 1000;
   letter-spacing: -0.04em;
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
@@ -380,20 +380,20 @@ img {
 
 .stat-head em {
   color: #ffe0a9;
-  font-size: 13px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 900;
 }
 
 .stat-body {
   display: grid;
-  grid-template-columns: 1fr 54px;
+  grid-template-columns: 1fr 48px;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .stat-meter {
-  height: 14px;
+  height: 12px;
   border-radius: 999px;
   background: rgba(27, 22, 18, 0.76);
   overflow: hidden;
@@ -428,38 +428,38 @@ img {
 
 .stat-body small {
   color: #e9d6bf;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 900;
   text-align: right;
 }
 
 .reward-box {
-  margin-top: 12px;
-  padding: 10px 12px;
+  margin-top: 10px;
+  padding: 8px 10px;
   border-radius: 18px;
   background: rgba(255, 248, 236, 0.68);
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .reward-box strong {
   display: block;
   color: #8a623c;
-  font-size: 13px;
-  margin-bottom: 3px;
+  font-size: 12px;
+  margin-bottom: 2px;
 }
 
 .reward-box p {
   margin: 0;
   color: #9b7d65;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
 }
 
 .reward-box > span {
-  font-size: 38px;
+  font-size: 32px;
   filter: drop-shadow(0 7px 8px rgba(0, 0, 0, 0.14));
 }
 
