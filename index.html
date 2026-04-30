@@ -1,13 +1,113 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>이기운 키우기</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>이기운 키우기</title>
+  <meta
+    name="description"
+    content="Three.js로 만든 가벼운 이기운 키우기 미니 게임"
+  />
+</head>
+<body>
+  <div id="loading-screen">
+    <div class="loader-content">
+      <div class="loader-spinner"></div>
+      <p>이기운이 준비 중...</p>
+    </div>
+  </div>
+
+  <canvas id="three-canvas"></canvas>
+
+  <div id="ui-overlay">
+    <header id="top-ui">
+      <div class="title-block">
+        <p class="eyebrow">solo dev life sim</p>
+        <h1>🌱 이기운 키우기</h1>
+        <p id="subtitle">코딩하고, 커피 마시고, 가끔 쉬는 미니 육성 게임</p>
+      </div>
+
+      <div id="status-panel">
+        <div class="status-chip">
+          <span>Lv.</span>
+          <strong id="level-value">1</strong>
+        </div>
+        <div class="status-chip wide">
+          <span>EXP</span>
+          <div class="meter">
+            <div id="exp-bar" class="meter-fill exp"></div>
+          </div>
+          <strong id="exp-value">0/100</strong>
+        </div>
+        <div class="status-chip">
+          <span>🪙</span>
+          <strong id="coin-value">0</strong>
+        </div>
+      </div>
+    </header>
+
+    <aside id="left-panel" class="glass-panel">
+      <h2>능력치</h2>
+      <div class="stat-row">
+        <span>⚡ 에너지</span>
+        <div class="meter"><div id="energy-bar" class="meter-fill green"></div></div>
+        <strong id="energy-value">0</strong>
+      </div>
+      <div class="stat-row">
+        <span>🙂 기분</span>
+        <div class="meter"><div id="mood-bar" class="meter-fill pink"></div></div>
+        <strong id="mood-value">0</strong>
+      </div>
+      <div class="stat-row">
+        <span>🧠 집중</span>
+        <div class="meter"><div id="focus-bar" class="meter-fill blue"></div></div>
+        <strong id="focus-value">0</strong>
+      </div>
+      <div class="stat-row">
+        <span>💻 코딩</span>
+        <div class="meter"><div id="coding-bar" class="meter-fill purple"></div></div>
+        <strong id="coding-value">0</strong>
+      </div>
+      <div class="stat-row">
+        <span>👥 사회성</span>
+        <div class="meter"><div id="social-bar" class="meter-fill orange"></div></div>
+        <strong id="social-value">0</strong>
+      </div>
+    </aside>
+
+    <aside id="right-panel" class="glass-panel">
+      <h2>오늘의 기운</h2>
+      <p id="daily-message">천천히 해도 괜찮아. 꾸준히 가는 게 중요해.</p>
+      <div id="achievement-box">
+        <h3>업적</h3>
+        <ul id="achievement-list"></ul>
+      </div>
+    </aside>
+
+    <div id="reaction-bubble" class="hidden">
+      <span id="reaction-text">좋아!</span>
+    </div>
+
+    <div id="toast" class="hidden"></div>
+
+    <div id="item-tray">
+      <button class="item-btn" data-action="coding" title="코딩하기">💻</button>
+      <button class="item-btn" data-action="coffee" title="커피 마시기">☕</button>
+      <button class="item-btn" data-action="reading" title="독서하기">📚</button>
+      <button class="item-btn" data-action="music" title="음악 듣기">🎧</button>
+      <button class="item-btn" data-action="exercise" title="운동하기">🏃</button>
+      <button class="item-btn" data-action="meal" title="밥 먹기">🍚</button>
+      <button class="item-btn" data-action="rest" title="쉬기">🛋️</button>
+      <button class="item-btn" data-action="goout" title="외출하기">🚶</button>
+      <button class="item-btn" data-action="tidy" title="방 정리하기">🧹</button>
+      <button class="item-btn danger" data-action="reset" title="초기화">↺</button>
+    </div>
+
+    <div id="help-panel">
+      <span>캐릭터를 클릭하거나 드래그하면 유대감이 올라가요.</span>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
 </html>
