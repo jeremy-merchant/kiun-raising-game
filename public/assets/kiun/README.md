@@ -3,25 +3,23 @@
 필수 파일명:
 
 1. real-1.jpg
-2. real-2.jpg
-3. real-3.jpg
-4. real-4.jpg
-5. real-5.jpg
-6. emotion-sheet.png
-7. pixel-sprite.png
-8. room-ui.png
+2. cover-art.png
+3. pixel-sprite.png
+4. emotion-sheet.png
 
 권장 매핑:
 
 - real-1.jpg : 대표 실사 프로필
-- real-2.jpg : 식물/공간 감성 컷
-- real-3.jpg : 부드러운 표정 컷
-- real-4.jpg : 일상적인 순간 컷
-- real-5.jpg : 측면 컷
-- emotion-sheet.png : 감정 시트 이미지
+- cover-art.png : 이기운 키우기 커버/방 배경 이미지
 - pixel-sprite.png : 픽셀/도트 스프라이트 이미지
-- room-ui.png : 메인 게임 UI 컨셉 이미지
+- emotion-sheet.png : 감정 시트 이미지
 
 주의:
 - 코드에서는 위 파일명을 그대로 참조합니다.
-- 파일명이 다르면 src/data/kiun.ts 의 GALLERY_IMAGES 경로를 수정하세요.
+- 파일명이 다르면 src/App.tsx 의 ASSETS 경로를 수정하세요.
+- GitHub Pages 배포를 위해 vite.config.ts 의 base는 "./"로 설정합니다.
+
+추천:
+- cover-art.png는 넓은 16:9 이미지가 가장 좋습니다.
+- pixel-sprite.png는 "이기운 키우기 - Pixel Sprite Set" 이미지를 넣으면 됩니다.
+- emotion-sheet.png는 추후 이벤트 팝업/감정 컷 확장용입니다.
