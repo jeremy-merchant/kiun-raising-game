@@ -55,6 +55,10 @@ const ui = {
   bubble: document.getElementById("reaction-bubble"),
   bubbleText: document.getElementById("reaction-text"),
   achievementList: document.getElementById("achievement-list"),
+  galleryMain: document.getElementById("gallery-main"),
+  galleryTitle: document.getElementById("gallery-title"),
+  galleryCaption: document.getElementById("gallery-caption"),
+  galleryThumbs: document.getElementById("gallery-thumbs"),
   toast: document.getElementById("toast"),
 };
 
@@ -209,6 +213,96 @@ function showToast(text) {
     ui.toast.classList.remove("visible");
     ui.toast.classList.add("hidden");
   }, 1800);
+}
+
+const galleryItems = [
+  {
+    id: "room-ui",
+    label: "room-ui",
+    caption: "메인 게임 UI 무드보드",
+    src: "/assets/kiun/room-ui.png",
+  },
+  {
+    id: "emotion-sheet",
+    label: "emotion-sheet",
+    caption: "감정표와 표정 톤 참고",
+    src: "/assets/kiun/emotion-sheet.png",
+  },
+  {
+    id: "pixel-sprite",
+    label: "pixel-sprite",
+    caption: "도트 스프라이트 / 애니메이션 참고",
+    src: "/assets/kiun/pixel-sprite.png",
+  },
+  {
+    id: "real-1",
+    label: "real-1",
+    caption: "컷아웃 프로필 A",
+    src: "/assets/kiun/real-1.jpg",
+  },
+  {
+    id: "real-2",
+    label: "real-2",
+    caption: "컷아웃 프로필 B",
+    src: "/assets/kiun/real-2.jpg",
+  },
+  {
+    id: "real-3",
+    label: "real-3",
+    caption: "컷아웃 프로필 C",
+    src: "/assets/kiun/real-3.jpg",
+  },
+  {
+    id: "real-4",
+    label: "real-4",
+    caption: "컷아웃 프로필 D",
+    src: "/assets/kiun/real-4.jpg",
+  },
+  {
+    id: "real-5",
+    label: "real-5",
+    caption: "컷아웃 프로필 E",
+    src: "/assets/kiun/real-5.jpg",
+  },
+];
+
+let selectedGalleryId = "room-ui";
+
+function selectGalleryItem(id, silent = false) {
+  const item = galleryItems.find((entry) => entry.id === id);
+  if (!item) return;
+
+  selectedGalleryId = id;
+  if (ui.galleryMain) {
+    ui.galleryMain.src = item.src;
+    ui.galleryMain.alt = item.label;
+  }
+  if (ui.galleryTitle) ui.galleryTitle.textContent = item.label;
+  if (ui.galleryCaption) ui.galleryCaption.textContent = item.caption;
+
+  ui.galleryThumbs?.querySelectorAll(".gallery-thumb").forEach((button) => {
+    button.classList.toggle("active", button.dataset.galleryId === id);
+  });
+
+  if (!silent) showToast(`${item.label} 선택`);
+}
+
+function renderGallery() {
+  if (!ui.galleryThumbs) return;
+  ui.galleryThumbs.innerHTML = "";
+
+  galleryItems.forEach((item) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "gallery-thumb";
+    button.dataset.galleryId = item.id;
+    button.setAttribute("aria-label", item.label);
+    button.innerHTML = `<img src="${item.src}" alt="${item.label}" />`;
+    button.addEventListener("click", () => selectGalleryItem(item.id));
+    ui.galleryThumbs.appendChild(button);
+  });
+
+  selectGalleryItem(selectedGalleryId, true);
 }
 
 const actions = {
@@ -1073,5 +1167,6 @@ setTimeout(() => {
   ui.loader?.classList.add("hidden");
 }, 800);
 
+renderGallery();
 updateUI();
 animate();
