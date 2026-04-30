@@ -258,18 +258,6 @@ img {
   opacity: 0.8;
 }
 
-.resource-chip button {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid rgba(82, 62, 50, 0.44);
-  background: rgba(69, 52, 42, 0.62);
-  color: #fff1df;
-  font-size: 20px;
-  font-weight: 900;
-  cursor: pointer;
-}
-
 .time-chip {
   height: 52px;
   min-width: 130px;
@@ -519,7 +507,7 @@ img {
 }
 
 .hero-card {
-  width: min(370px, 100%);
+  width: min(390px, 100%);
   border-radius: 30px;
   padding: 16px 16px 18px;
   text-align: center;
@@ -585,6 +573,28 @@ img {
   line-height: 1.55;
   font-weight: 800;
   white-space: pre-line;
+}
+
+.daily-goals {
+  margin-top: 13px;
+  display: grid;
+  gap: 7px;
+}
+
+.daily-goal {
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(255, 250, 242, 0.72);
+  border: 1px solid rgba(127, 96, 74, 0.14);
+  color: #7d6251;
+  font-size: 12px;
+  font-weight: 900;
+  text-align: left;
+}
+
+.daily-goal.done {
+  background: rgba(134, 206, 113, 0.22);
+  color: #3e6d35;
 }
 
 .hero-chip-row {
@@ -988,6 +998,20 @@ img {
   white-space: nowrap;
 }
 
+.action-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.55);
+}
+
+.action-button:disabled:hover {
+  transform: none;
+  border-color: rgba(112, 84, 65, 0.32);
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.54);
+}
+
 .toast {
   position: absolute;
   left: 50%;
@@ -1003,6 +1027,51 @@ img {
   font-weight: 1000;
   box-shadow: 0 16px 34px rgba(0, 0, 0, 0.24);
   animation: toastIn 0.2s ease both;
+}
+
+.floating-reward-stack {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  z-index: 50;
+  display: grid;
+  gap: 8px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.floating-reward {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(255, 248, 235, 0.96);
+  border: 2px solid rgba(103, 74, 55, 0.24);
+  color: #654733;
+  font-size: 15px;
+  font-weight: 1000;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+  animation: rewardFloat 1.2s ease both;
+}
+
+.floating-reward.bonus {
+  background: rgba(255, 229, 153, 0.96);
+}
+
+.floating-reward.warn {
+  background: rgba(255, 205, 205, 0.96);
+}
+
+@keyframes rewardFloat {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-26px) scale(1);
+  }
 }
 
 @keyframes toastIn {
@@ -1088,29 +1157,6 @@ img {
 
 .event-modal-reward strong {
   color: #5e3f2e;
-}
-
-@media (max-width: 1320px) {
-  .game-root {
-    min-width: 100vw;
-    min-height: 700px;
-  }
-
-  .resource-chip {
-    min-width: 142px;
-  }
-
-  .resource-chip strong {
-    font-size: 18px;
-  }
-
-  .game-screen {
-    grid-template-columns: 295px 1fr 285px;
-  }
-
-  .action-button strong {
-    font-size: 18px;
-  }
 }
 
 @media (max-width: 1080px) {
@@ -1323,6 +1369,23 @@ img {
 
   .mini-character {
     display: none;
+  }
+
+  .action-button {
+    min-height: 84px;
+    height: auto;
+  }
+
+  .action-button strong {
+    font-size: 12px;
+  }
+
+  .action-button small {
+    font-size: 9px;
+  }
+
+  .inventory-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .bottom-actions {
