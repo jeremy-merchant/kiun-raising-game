@@ -543,13 +543,13 @@ img {
 }
 
 .mini-sprite {
-  width: 82px;
-  height: 82px;
+  width: 68px;
+  height: 68px;
 }
 
 .action-sprite {
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
 }
 
 .sprite-coding {
@@ -684,18 +684,18 @@ img {
   right: 22px;
   bottom: 22px;
   z-index: 12;
-  min-height: 92px;
+  min-height: 76px;
   border-radius: 28px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   display: grid;
   grid-template-columns: 74px 1fr 74px;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .side-button {
   position: relative;
-  height: 72px;
+  height: 56px;
   border: 0;
   border-radius: 18px;
   background: rgba(88, 70, 58, 0.72);
@@ -710,7 +710,7 @@ img {
 }
 
 .side-button span {
-  font-size: 24px;
+  font-size: 20px;
 }
 
 .side-button small {
@@ -736,7 +736,7 @@ img {
 
 .action-button {
   position: relative;
-  height: 84px;
+  height: 64px;
   border: 3px solid rgba(112, 84, 65, 0.32);
   border-radius: 18px;
   background: linear-gradient(180deg, rgba(255, 250, 240, 0.94), rgba(236, 210, 181, 0.94));
@@ -749,7 +749,7 @@ img {
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding: 6px 8px 9px;
+  padding: 5px 6px 7px;
   transition:
     transform 0.15s ease,
     border-color 0.15s ease,
@@ -797,7 +797,7 @@ img {
 
 .action-button strong {
   color: #6d4e3d;
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 1000;
   letter-spacing: -0.05em;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.52);
@@ -806,9 +806,9 @@ img {
 }
 
 .action-button small {
-  margin-top: 3px;
+  margin-top: 2px;
   color: rgba(89, 64, 49, 0.72);
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 900;
   white-space: nowrap;
 }
