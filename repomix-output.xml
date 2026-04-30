@@ -32,7 +32,7 @@ The content is organized as follows:
 <notes>
 - Some files may have been excluded based on .gitignore rules and Repomix's configuration
 - Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
-- Only files matching these patterns are included: .git, .github, dist, node_modules, public, src, .gitignore, index.html, package-lock.json, package.json, README.md, tsconfig.json, tsconfig.node.json, vite.config.ts
+- Only files matching these patterns are included: .git, .github, dist, node_modules, public/assets/kiun, public/assets/kiun/emotion-sheet.png, public/assets/kiun/pixel-sprite.png, public/assets/kiun/README.md, public/assets/kiun/real-1.jpg, public/assets/kiun/real-2.jpg, public/assets/kiun/real-3.jpg, public/assets/kiun/real-4.jpg, public/assets/kiun/real-5.jpg, public/assets/kiun/room-ui.png, src, .gitignore, index.html, package-lock.json, package.json, README.md, repomix-output.xml, tsconfig.json, tsconfig.node.json, vite.config.ts
 - Files matching patterns in .gitignore are excluded
 - Files matching default ignore patterns are excluded
 - Files are sorted by Git change count (files with more changes are at the bottom)
@@ -47,28 +47,20 @@ The content is organized as follows:
 public/
   assets/
     kiun/
+      emotion-sheet.png
+      pixel-sprite.png
       README.md
+      real-1.jpg
+      real-2.jpg
+      real-3.jpg
+      real-4.jpg
+      real-5.jpg
+      room-ui.png
 src/
-  components/
-    ActionPanel.tsx
-    CharacterStage.tsx
-    GalleryPanel.tsx
-    InventoryPanel.tsx
-    LogPanel.tsx
-    StatPanel.tsx
-    TopBar.tsx
-  data/
-    kiun.ts
-  hooks/
-    useKiunGame.ts
-  types/
-    game.ts
-  utils/
-    game.ts
-    storage.ts
   App.tsx
   index.css
   main.tsx
+  vite-env.d.ts
 .gitignore
 index.html
 package.json
@@ -81,1963 +73,16 @@ vite.config.ts
 <files>
 This section contains the contents of the repository's files.
 
-<file path=".github/workflows/deploy.yml">
-name: Deploy to GitHub Pages
+<file path="src/vite-env.d.ts">
+/// <reference types="vite/client" />
 
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-</file>
-
-<file path="public/assets/kiun/README.md">
-이 디렉토리에 아래 이미지들을 넣어주세요.
-
-필수 파일명:
-
-1. real-1.jpg
-2. real-2.jpg
-3. real-3.jpg
-4. real-4.jpg
-5. real-5.jpg
-6. emotion-sheet.png
-7. pixel-sprite.png
-8. room-ui.png
-
-권장 매핑:
-
-- real-1.jpg : 대표 실사 프로필
-- real-2.jpg : 식물/공간 감성 컷
-- real-3.jpg : 부드러운 표정 컷
-- real-4.jpg : 일상적인 순간 컷
-- real-5.jpg : 측면 컷
-- emotion-sheet.png : 감정 시트 이미지
-- pixel-sprite.png : 픽셀/도트 스프라이트 이미지
-- room-ui.png : 메인 게임 UI 컨셉 이미지
-
-주의:
-- 코드에서는 위 파일명을 그대로 참조합니다.
-- 파일명이 다르면 src/data/kiun.ts 의 GALLERY_IMAGES 경로를 수정하세요.
-</file>
-
-<file path="src/components/ActionPanel.tsx">
-import { Activity } from "../types/game";
-
-interface ActionPanelProps {
-  activities: Activity[];
-  onPerformActivity: (id: Activity["id"]) => void;
-}
-
-export function ActionPanel({ activities, onPerformActivity }: ActionPanelProps) {
-  return (
-    <section className="card section-card">
-      <div className="section-title-row">
-        <h2>행동 선택</h2>
-        <span className="section-subtle">다양한 루틴으로 이기운을 성장시키자</span>
-      </div>
-
-      <div className="action-grid">
-        {activities.map((activity) => (
-          <button
-            key={activity.id}
-            className="action-card"
-            onClick={() => onPerformActivity(activity.id)}
-          >
-            <div className="action-card-top">
-              <span className="action-emoji">{activity.emoji}</span>
-              <div className="action-title-wrap">
-                <strong>{activity.label}</strong>
-                <span>{activity.duration}분</span>
-              </div>
-            </div>
-            <p>{activity.message}</p>
-            <div className="action-meta">
-              <span>EXP +{activity.expGain}</span>
-              <span>에너지 {activity.energyDelta > 0 ? "+" : ""}{activity.energyDelta}</span>
-              <span>코인 {activity.coinDelta > 0 ? "+" : ""}{activity.coinDelta}</span>
-            </div>
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-}
-</file>
-
-<file path="src/components/CharacterStage.tsx">
-import { GameState } from "../types/game";
-
-interface CharacterStageProps {
-  state: GameState;
-  onRotateQuote: () => void;
-}
-
-export function CharacterStage({ state, onRotateQuote }: CharacterStageProps) {
-  const selectedImage =
-    state.gallery.find((item) => item.id === state.selectedGalleryId) ?? state.gallery[0];
-
-  return (
-    <section className="card stage-card">
-      <div className="stage-top">
-        <div>
-          <div className="eyebrow">대표 캐릭터 뷰</div>
-          <h2>{selectedImage.label}</h2>
-          <p className="muted">{selectedImage.description}</p>
-        </div>
-        <button className="secondary-button" onClick={onRotateQuote}>
-          오늘의 한마디 바꾸기
-        </button>
-      </div>
-
-      <div className="stage-main">
-        <div className="stage-image-wrap">
-          <img
-            src={selectedImage.src}
-            alt={selectedImage.label}
-            className="stage-image"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = "/assets/kiun/real-1.jpg";
-            }}
-          />
-        </div>
-
-        <div className="stage-info">
-          <div className="speech-bubble">{state.currentStatus}</div>
-
-          <div className="quote-box">
-            <div className="eyebrow">오늘의 한마디</div>
-            <p>{state.currentQuote}</p>
-          </div>
-
-          <div className="profile-box">
-            <h3>이기운 캐릭터 해석</h3>
-            <p>{state.profile.description}</p>
-          </div>
-
-          <div className="tag-group">
-            {state.profile.styleKeywords.map((keyword) => (
-              <span key={keyword} className="tag">
-                #{keyword}
-              </span>
-            ))}
-          </div>
-
-          <div className="mini-grid">
-            <div className="mini-card">
-              <strong>나이 무드</strong>
-              <span>{state.profile.ageText}</span>
-            </div>
-            <div className="mini-card">
-              <strong>최근 행동</strong>
-              <span>{state.lastActivity ? state.lastActivity : "아직 없음"}</span>
-            </div>
-            <div className="mini-card">
-              <strong>좋아하는 것</strong>
-              <span>{state.profile.favorites.slice(0, 3).join(", ")}</span>
-            </div>
-            <div className="mini-card">
-              <strong>현재 업적 수</strong>
-              <span>{state.achievements.length}개</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-</file>
-
-<file path="src/components/GalleryPanel.tsx">
-import { GameState } from "../types/game";
-
-interface GalleryPanelProps {
-  state: GameState;
-  onSelectGallery: (id: string) => void;
-}
-
-export function GalleryPanel({ state, onSelectGallery }: GalleryPanelProps) {
-  return (
-    <section className="card section-card">
-      <div className="section-title-row">
-        <h2>비주얼 갤러리</h2>
-        <span className="section-subtle">실사 + 도트 + 감정 시트 + UI 컨셉</span>
-      </div>
-
-      <div className="gallery-grid">
-        {state.gallery.map((image) => {
-          const active = image.id === state.selectedGalleryId;
-          return (
-            <button
-              key={image.id}
-              className={`gallery-card ${active ? "active" : ""}`}
-              onClick={() => onSelectGallery(image.id)}
-            >
-              <img
-                src={image.src}
-                alt={image.label}
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = "/assets/kiun/real-1.jpg";
-                }}
-              />
-              <div className="gallery-card-body">
-                <strong>{image.label}</strong>
-                <span>{image.category}</span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-</file>
-
-<file path="src/components/InventoryPanel.tsx">
-import { GameState } from "../types/game";
-
-interface InventoryPanelProps {
-  state: GameState;
-}
-
-export function InventoryPanel({ state }: InventoryPanelProps) {
-  return (
-    <section className="card section-card">
-      <div className="section-title-row">
-        <h2>소지품 & 업적</h2>
-        <span className="section-subtle">취향과 성장 흐름을 함께 보여주는 영역</span>
-      </div>
-
-      <div className="inventory-grid">
-        {state.inventory.map((item) => (
-          <div key={item.id} className="inventory-card">
-            <div className="inventory-head">
-              <span className="inventory-icon">{item.icon}</span>
-              <strong>{item.label}</strong>
-            </div>
-            <span className="inventory-count">x{item.count}</span>
-            <p>{item.description}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="achievement-box">
-        <h3>업적</h3>
-        {state.achievements.length === 0 ? (
-          <p className="muted">아직 업적이 없습니다. 행동을 반복하며 성장시켜보세요.</p>
-        ) : (
-          <div className="tag-group">
-            {state.achievements.map((achievement) => (
-              <span key={achievement} className="tag achievement-tag">
-                🏆 {achievement}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-</file>
-
-<file path="src/components/LogPanel.tsx">
-import { GameState } from "../types/game";
-
-interface LogPanelProps {
-  state: GameState;
-}
-
-export function LogPanel({ state }: LogPanelProps) {
-  return (
-    <section className="card section-card">
-      <div className="section-title-row">
-        <h2>최근 기록</h2>
-        <span className="section-subtle">행동과 이벤트 로그</span>
-      </div>
-
-      <div className="log-list">
-        {state.logs.map((log) => (
-          <div key={log.id} className={`log-item log-${log.type}`}>
-            <div className="log-meta">
-              <span>Day {log.day}</span>
-              <span>{log.time}</span>
-            </div>
-            <p>{log.text}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-</file>
-
-<file path="src/components/StatPanel.tsx">
-import { GameState } from "../types/game";
-
-interface StatPanelProps {
-  state: GameState;
-}
-
-export function StatPanel({ state }: StatPanelProps) {
-  const stats = Object.values(state.stats);
-
-  return (
-    <section className="card section-card">
-      <div className="section-title-row">
-        <h2>능력치</h2>
-        <span className="section-subtle">이기운의 현재 성장 상태</span>
-      </div>
-
-      <div className="stat-list">
-        {stats.map((stat) => (
-          <div key={stat.key} className="stat-item">
-            <div className="stat-item-head">
-              <div className="stat-item-label">
-                <span className="stat-icon">{stat.icon}</span>
-                <span>{stat.label}</span>
-              </div>
-              <div className="stat-meta">
-                <span>Lv. {stat.level}</span>
-                <strong>{stat.value} / 100</strong>
-              </div>
-            </div>
-            <div className="bar">
-              <div
-                className="bar-fill"
-                style={{ width: `${stat.value}%`, background: stat.color }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-</file>
-
-<file path="src/components/TopBar.tsx">
-import { GameState } from "../types/game";
-import { formatTime, getWeekdayLabel } from "../utils/game";
-
-interface TopBarProps {
-  state: GameState;
-}
-
-export function TopBar({ state }: TopBarProps) {
-  const expInCurrentLevel = state.exp % 100;
-
-  return (
-    <header className="topbar card">
-      <div className="topbar-profile">
-        <div className="avatar">
-          <img
-            src="/assets/kiun/real-1.jpg"
-            alt="이기운 프로필"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.display = "none";
-            }}
-          />
-          <span>이</span>
-        </div>
-        <div className="topbar-profile-text">
-          <div className="eyebrow">Lv. {state.level}</div>
-          <h1>{state.profile.name} 키우기</h1>
-          <div className="exp-row">
-            <span>EXP {expInCurrentLevel} / 100</span>
-            <div className="bar">
-              <div className="bar-fill exp-fill" style={{ width: `${expInCurrentLevel}%` }} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="topbar-resources">
-        <div className="resource-chip">
-          <span>❤️ 하트</span>
-          <strong>{state.hearts} / 100</strong>
-        </div>
-        <div className="resource-chip">
-          <span>⚡ 에너지</span>
-          <strong>{state.energy} / 100</strong>
-        </div>
-        <div className="resource-chip">
-          <span>🪙 코인</span>
-          <strong>{state.coins.toLocaleString()}</strong>
-        </div>
-        <div className="resource-chip">
-          <span>🗓️ Day {state.day}</span>
-          <strong>
-            {getWeekdayLabel(state.weekdayIndex)} · {formatTime(state.minutes)}
-          </strong>
-        </div>
-      </div>
-    </header>
-  );
-}
-</file>
-
-<file path="src/data/kiun.ts">
-import {
-  Activity,
-  CharacterProfile,
-  GalleryImage,
-  InventoryItem,
-  Stats,
-} from "../types/game";
-
-export const WEEKDAYS = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"];
-
-export const KIUN_PROFILE: CharacterProfile = {
-  name: "이기운",
-  title: "차분하지만 은근히 몰입형인 성장 캐릭터",
-  ageText: "20대 초반 무드",
-  description:
-    "차분하고 다정한 분위기, 검은 머리와 단정한 인상, 집중할 때 몰입도가 높고 커피·독서·음악·코딩을 좋아하는 타입. 편안한 검정 계열 옷과 폭신한 자켓이 잘 어울리는 캐릭터.",
-  styleKeywords: [
-    "차분함",
-    "다정함",
-    "집중형",
-    "도회적",
-    "검정 계열 룩",
-    "폭신한 자켓",
-    "커피 러버",
-    "책 읽는 사람",
-  ],
-  traits: [
-    "조용하지만 존재감이 있음",
-    "한 번 몰입하면 깊게 파고듦",
-    "커피와 작업 루틴을 좋아함",
-    "책, 음악, 산책 같은 정적인 취향이 잘 맞음",
-    "기본적으로 다정하고 따뜻한 인상",
-  ],
-  favorites: ["커피", "코딩", "독서", "음악", "산책", "고양이", "따뜻한 하루"],
-  quotes: [
-    "천천히 해도 괜찮아. 중요한 건 꾸준함이야.",
-    "몰입은 재능보다 루틴에서 온다.",
-    "오늘 하루도 조용히, 하지만 확실하게.",
-    "쉬는 것도 성장의 일부야.",
-    "잘하는 것보다 계속하는 게 더 강하다.",
-    "작은 진전이 결국 분위기를 만든다.",
-  ],
-};
-
-export const DEFAULT_STATS: Stats = {
-  focus: {
-    key: "focus",
-    label: "집중력",
-    value: 78,
-    level: 7,
-    color: "#72b7ff",
-    icon: "🧠",
-  },
-  stamina: {
-    key: "stamina",
-    label: "체력",
-    value: 64,
-    level: 6,
-    color: "#8bd37c",
-    icon: "💪",
-  },
-  mood: {
-    key: "mood",
-    label: "기분",
-    value: 72,
-    level: 6,
-    color: "#ff9db2",
-    icon: "🙂",
-  },
-  social: {
-    key: "social",
-    label: "사회성",
-    value: 48,
-    level: 5,
-    color: "#b79cff",
-    icon: "👥",
-  },
-  coding: {
-    key: "coding",
-    label: "코딩력",
-    value: 86,
-    level: 8,
-    color: "#ffbe6b",
-    icon: "💻",
-  },
-  bond: {
-    key: "bond",
-    label: "유대감",
-    value: 68,
-    level: 6,
-    color: "#ff8f8f",
-    icon: "🫶",
-  },
-};
-
-export const STARTER_INVENTORY: InventoryItem[] = [
-  { id: "laptop", label: "노트북", count: 1, icon: "💻", description: "몰입 작업의 핵심 장비" },
-  { id: "coffee", label: "아메리카노", count: 4, icon: "☕", description: "집중을 끌어올리는 필수품" },
-  { id: "book", label: "책", count: 3, icon: "📘", description: "독서 루틴용 아이템" },
-  { id: "earphone", label: "이어폰", count: 1, icon: "🎧", description: "음악 감상과 집중용" },
-  { id: "plant", label: "식물", count: 2, icon: "🪴", description: "공간 분위기를 좋게 해줌" },
-];
-
-export const GALLERY_IMAGES: GalleryImage[] = [
-  {
-    id: "real-1",
-    label: "실사 1",
-    src: "/assets/kiun/real-1.jpg",
-    description: "대표 실사 프로필 컷",
-    category: "photo",
-  },
-  {
-    id: "real-2",
-    label: "실사 2",
-    src: "/assets/kiun/real-2.jpg",
-    description: "공간 감성 컷",
-    category: "photo",
-  },
-  {
-    id: "real-3",
-    label: "실사 3",
-    src: "/assets/kiun/real-3.jpg",
-    description: "부드러운 표정 컷",
-    category: "photo",
-  },
-  {
-    id: "real-4",
-    label: "실사 4",
-    src: "/assets/kiun/real-4.jpg",
-    description: "일상적인 순간 포착",
-    category: "photo",
-  },
-  {
-    id: "real-5",
-    label: "실사 5",
-    src: "/assets/kiun/real-5.jpg",
-    description: "자연스러운 측면 컷",
-    category: "photo",
-  },
-  {
-    id: "emotion-sheet",
-    label: "감정 시트",
-    src: "/assets/kiun/emotion-sheet.png",
-    description: "감정/표정 컨셉 시트",
-    category: "concept",
-  },
-  {
-    id: "pixel-sprite",
-    label: "픽셀 세트",
-    src: "/assets/kiun/pixel-sprite.png",
-    description: "도트/스프라이트 컨셉",
-    category: "pixel",
-  },
-  {
-    id: "room-ui",
-    label: "게임 UI 컨셉",
-    src: "/assets/kiun/room-ui.png",
-    description: "메인 게임 화면 컨셉",
-    category: "ui",
-  },
-];
-
-export const ACTIVITIES: Activity[] = [
-  {
-    id: "coding",
-    label: "코딩하기",
-    emoji: "💻",
-    duration: 60,
-    energyDelta: -14,
-    heartDelta: 3,
-    coinDelta: 15,
-    expGain: 24,
-    unlockLevel: 1,
-    message: "노트북을 펼치고 깊게 몰입했다.",
-    statChanges: { focus: 8, coding: 10, mood: 1 },
-  },
-  {
-    id: "reading",
-    label: "독서하기",
-    emoji: "📚",
-    duration: 45,
-    energyDelta: -4,
-    heartDelta: 2,
-    coinDelta: 0,
-    expGain: 12,
-    unlockLevel: 1,
-    message: "조용한 분위기 속에서 책을 읽었다.",
-    statChanges: { focus: 4, mood: 4, bond: 2 },
-    inventoryChanges: { book: -1 },
-  },
-  {
-    id: "coffee",
-    label: "커피 마시기",
-    emoji: "☕",
-    duration: 20,
-    energyDelta: 8,
-    heartDelta: 1,
-    coinDelta: -4,
-    expGain: 4,
-    unlockLevel: 1,
-    message: "커피 한 잔으로 기분과 집중을 끌어올렸다.",
-    statChanges: { focus: 3, mood: 5 },
-    inventoryChanges: { coffee: -1 },
-  },
-  {
-    id: "exercise",
-    label: "운동하기",
-    emoji: "🏃",
-    duration: 50,
-    energyDelta: -10,
-    heartDelta: 2,
-    coinDelta: 0,
-    expGain: 18,
-    unlockLevel: 2,
-    message: "몸을 움직이며 컨디션을 정리했다.",
-    statChanges: { stamina: 8, mood: 5, social: 1 },
-  },
-  {
-    id: "meal",
-    label: "밥 먹기",
-    emoji: "🍚",
-    duration: 30,
-    energyDelta: 16,
-    heartDelta: 2,
-    coinDelta: -9,
-    expGain: 5,
-    unlockLevel: 1,
-    message: "든든하게 식사하고 에너지를 회복했다.",
-    statChanges: { stamina: 4, mood: 3 },
-  },
-  {
-    id: "rest",
-    label: "쉬기",
-    emoji: "🛋️",
-    duration: 40,
-    energyDelta: 12,
-    heartDelta: 3,
-    coinDelta: 0,
-    expGain: 6,
-    unlockLevel: 1,
-    message: "한숨 돌리며 여유를 챙겼다.",
-    statChanges: { mood: 7, bond: 3 },
-  },
-  {
-    id: "goOut",
-    label: "외출하기",
-    emoji: "🚶",
-    duration: 90,
-    energyDelta: -8,
-    heartDelta: 3,
-    coinDelta: -10,
-    expGain: 15,
-    unlockLevel: 2,
-    message: "바깥 공기를 쐬며 리프레시했다.",
-    statChanges: { mood: 6, social: 7, bond: 3 },
-  },
-  {
-    id: "music",
-    label: "음악 듣기",
-    emoji: "🎵",
-    duration: 25,
-    energyDelta: 4,
-    heartDelta: 2,
-    coinDelta: 0,
-    expGain: 5,
-    unlockLevel: 1,
-    message: "좋아하는 음악을 들으며 분위기를 정리했다.",
-    statChanges: { mood: 6, focus: 2, bond: 2 },
-  },
-  {
-    id: "tidy",
-    label: "방 정리하기",
-    emoji: "🧹",
-    duration: 35,
-    energyDelta: -6,
-    heartDelta: 1,
-    coinDelta: 0,
-    expGain: 8,
-    unlockLevel: 2,
-    message: "공간을 정리하면서 마음도 정돈됐다.",
-    statChanges: { focus: 3, mood: 4, stamina: 1 },
-  },
-  {
-    id: "sleep",
-    label: "잠자기",
-    emoji: "🌙",
-    duration: 480,
-    energyDelta: 36,
-    heartDelta: 4,
-    coinDelta: 0,
-    expGain: 10,
-    unlockLevel: 1,
-    message: "푹 쉬고 다음 날을 준비했다.",
-    statChanges: { stamina: 6, mood: 5, bond: 2 },
-  },
-];
-</file>
-
-<file path="src/hooks/useKiunGame.ts">
-import { useEffect, useMemo, useState } from "react";
-import { ACTIVITIES } from "../data/kiun";
-import { ActivityId } from "../types/game";
-import { runActivity, createInitialGameState } from "../utils/game";
-import { loadGameState, saveGameState } from "../utils/storage";
-
-export function useKiunGame() {
-  const [state, setState] = useState(() => loadGameState() ?? createInitialGameState());
-
-  useEffect(() => {
-    saveGameState(state);
-  }, [state]);
-
-  const availableActivities = useMemo(
-    () => ACTIVITIES.filter((activity) => state.level >= activity.unlockLevel),
-    [state.level]
-  );
-
-  const performActivity = (activityId: ActivityId) => {
-    const activity = ACTIVITIES.find((item) => item.id === activityId);
-    if (!activity) return;
-    setState((prev) => runActivity(prev, activity));
-  };
-
-  const selectGallery = (galleryId: string) => {
-    setState((prev) => ({
-      ...prev,
-      selectedGalleryId: galleryId,
-    }));
-  };
-
-  const rotateQuote = () => {
-    setState((prev) => {
-      const index =
-        (prev.profile.quotes.findIndex((quote) => quote === prev.currentQuote) + 1) %
-        prev.profile.quotes.length;
-
-      return {
-        ...prev,
-        currentQuote: prev.profile.quotes[index],
-      };
-    });
-  };
-
-  const resetGame = () => {
-    setState(createInitialGameState());
-  };
-
-  return {
-    state,
-    availableActivities,
-    performActivity,
-    selectGallery,
-    rotateQuote,
-    resetGame,
-  };
-}
-</file>
-
-<file path="src/types/game.ts">
-export type StatKey =
-  | "focus"
-  | "stamina"
-  | "mood"
-  | "social"
-  | "coding"
-  | "bond";
-
-export type ActivityId =
-  | "coding"
-  | "reading"
-  | "coffee"
-  | "exercise"
-  | "meal"
-  | "rest"
-  | "goOut"
-  | "music"
-  | "tidy"
-  | "sleep";
-
-export type LogType = "activity" | "event" | "system";
-
-export interface Stat {
-  key: StatKey;
-  label: string;
-  value: number;
-  level: number;
-  color: string;
-  icon: string;
-}
-
-export type Stats = Record<StatKey, Stat>;
-
-export interface CharacterProfile {
-  name: string;
-  title: string;
-  ageText: string;
-  description: string;
-  styleKeywords: string[];
-  traits: string[];
-  favorites: string[];
-  quotes: string[];
-}
-
-export interface GalleryImage {
-  id: string;
-  label: string;
-  src: string;
-  description: string;
-  category: "photo" | "concept" | "ui" | "pixel";
-}
-
-export interface InventoryItem {
-  id: string;
-  label: string;
-  count: number;
-  icon: string;
-  description: string;
-}
-
-export interface Activity {
-  id: ActivityId;
-  label: string;
-  emoji: string;
-  duration: number;
-  energyDelta: number;
-  heartDelta: number;
-  coinDelta: number;
-  expGain: number;
-  unlockLevel: number;
-  message: string;
-  statChanges: Partial<Record<StatKey, number>>;
-  inventoryChanges?: Record<string, number>;
-}
-
-export interface LogEntry {
-  id: string;
-  day: number;
-  time: string;
-  text: string;
-  type: LogType;
-}
-
-export interface EventOutcome {
-  title: string;
-  description: string;
-  statChanges?: Partial<Record<StatKey, number>>;
-  energyDelta?: number;
-  heartDelta?: number;
-  coinDelta?: number;
-  expGain?: number;
-  inventoryChanges?: Record<string, number>;
-}
-
-export interface GameState {
-  profile: CharacterProfile;
-  level: number;
-  exp: number;
-  expToNext: number;
-  hearts: number;
-  energy: number;
-  coins: number;
-  day: number;
-  minutes: number;
-  weekdayIndex: number;
-  currentQuote: string;
-  currentStatus: string;
-  selectedGalleryId: string;
-  stats: Stats;
-  inventory: InventoryItem[];
-  gallery: GalleryImage[];
-  achievements: string[];
-  lastActivity?: ActivityId;
-  logs: LogEntry[];
-}
-</file>
-
-<file path="src/utils/game.ts">
-import {
-  Activity,
-  EventOutcome,
-  GameState,
-  InventoryItem,
-  LogEntry,
-  StatKey,
-  Stats,
-} from "../types/game";
-import {
-  ACTIVITIES,
-  DEFAULT_STATS,
-  GALLERY_IMAGES,
-  KIUN_PROFILE,
-  STARTER_INVENTORY,
-  WEEKDAYS,
-} from "../data/kiun";
-
-const MAX_METER = 100;
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function calculateStatLevel(value: number) {
-  return Math.max(1, Math.floor(value / 12) + 1);
-}
-
-export function getLevelFromExp(exp: number) {
-  return Math.floor(exp / 100) + 1;
-}
-
-export function getExpToNext(exp: number) {
-  const currentLevel = getLevelFromExp(exp);
-  const nextLevelStart = currentLevel * 100;
-  return nextLevelStart - exp;
-}
-
-export function formatTime(minutes: number) {
-  const hour = Math.floor(minutes / 60) % 24;
-  const minute = minutes % 60;
-  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
-}
-
-function deepCloneStats(stats: Stats): Stats {
-  return {
-    focus: { ...stats.focus },
-    stamina: { ...stats.stamina },
-    mood: { ...stats.mood },
-    social: { ...stats.social },
-    coding: { ...stats.coding },
-    bond: { ...stats.bond },
-  };
-}
-
-function updateStats(stats: Stats, changes: Partial<Record<StatKey, number>>) {
-  const next = deepCloneStats(stats);
-  (Object.keys(changes) as StatKey[]).forEach((key) => {
-    const diff = changes[key] ?? 0;
-    next[key].value = clamp(next[key].value + diff, 0, MAX_METER);
-    next[key].level = calculateStatLevel(next[key].value);
-  });
-  return next;
-}
-
-function updateInventory(
-  inventory: InventoryItem[],
-  changes: Record<string, number> = {}
-) {
-  const next = inventory.map((item) => ({ ...item }));
-  Object.entries(changes).forEach(([id, delta]) => {
-    const found = next.find((item) => item.id === id);
-    if (found) {
-      found.count = Math.max(0, found.count + delta);
-      return;
-    }
-    if (delta > 0) {
-      next.push({
-        id,
-        label: id,
-        count: delta,
-        icon: "✨",
-        description: "이벤트로 획득한 아이템",
-      });
-    }
-  });
-  return next;
-}
-
-function makeLog(state: GameState, text: string, type: LogEntry["type"]): LogEntry {
-  return {
-    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    day: state.day,
-    time: formatTime(state.minutes),
-    text,
-    type,
-  };
-}
-
-function pickQuote(seed: number) {
-  return KIUN_PROFILE.quotes[seed % KIUN_PROFILE.quotes.length];
-}
-
-function buildAchievements(state: GameState) {
-  const achievements = new Set<string>();
-
-  if (state.exp >= 100) achievements.add("꾸준한 시작");
-  if (state.exp >= 250) achievements.add("성장 가속");
-  if (state.stats.coding.value >= 90) achievements.add("몰입 개발자");
-  if (state.stats.focus.value >= 85) achievements.add("집중의 달인");
-  if (state.stats.mood.value >= 85) achievements.add("기분 좋은 하루");
-  if (state.stats.social.value >= 70) achievements.add("부드러운 교류");
-  if (state.day >= 3) achievements.add("루틴 정착");
-  if (state.day >= 7) achievements.add("일주일의 리듬");
-  if (state.inventory.find((item) => item.id === "coffee")?.count ?? 0 >= 5) {
-    achievements.add("커피 수집가");
-  }
-  if (state.inventory.find((item) => item.id === "book")?.count ?? 0 >= 5) {
-    achievements.add("책과 친한 사람");
-  }
-
-  return Array.from(achievements);
-}
-
-function rollEvent(state: GameState, activity: Activity): EventOutcome | null {
-  const seed = (state.day * 131 + state.minutes + activity.duration + state.exp) % 100;
-
-  if (activity.id === "coding" && seed < 35) {
-    return {
-      title: "집중 모드 발동",
-      description: "손이 잘 풀린다. 생각보다 흐름이 끊기지 않는다.",
-      statChanges: { focus: 4, coding: 5 },
-      expGain: 8,
-      coinDelta: 6,
-    };
-  }
-
-  if (activity.id === "coffee" && seed < 45) {
-    return {
-      title: "카페인 버프",
-      description: "커피가 유독 맛있다. 집중과 기분이 한 번 더 오른다.",
-      statChanges: { focus: 2, mood: 4 },
-      energyDelta: 4,
-      expGain: 3,
-    };
-  }
-
-  if (activity.id === "reading" && seed < 30) {
-    return {
-      title: "좋은 문장 발견",
-      description: "마음에 남는 문장을 만났다. 생각이 조금 깊어진다.",
-      statChanges: { mood: 3, bond: 2, focus: 2 },
-      expGain: 4,
-    };
-  }
-
-  if (activity.id === "goOut" && seed < 28) {
-    return {
-      title: "산책 중 좋은 공기",
-      description: "바람이 좋다. 기분이 풀리고 표정도 한결 부드러워진다.",
-      statChanges: { mood: 5, social: 3, bond: 2 },
-      heartDelta: 2,
-      expGain: 4,
-    };
-  }
-
-  if (activity.id === "music" && seed < 40) {
-    return {
-      title: "플레이리스트 명중",
-      description: "딱 지금 기분에 맞는 곡이 나왔다.",
-      statChanges: { mood: 5, focus: 1 },
-      heartDelta: 1,
-      expGain: 2,
-    };
-  }
-
-  if (state.energy < 20 && activity.id !== "sleep" && seed < 22) {
-    return {
-      title: "과로 경고",
-      description: "너무 달리면 페이스가 깨진다. 잠깐 템포를 조절하자.",
-      statChanges: { mood: -3, stamina: -2 },
-      energyDelta: -4,
-    };
-  }
-
-  return null;
-}
-
-export function getActivityMap() {
-  return Object.fromEntries(ACTIVITIES.map((item) => [item.id, item])) as Record<
-    Activity["id"],
-    Activity
-  >;
-}
-
-export function createInitialGameState(): GameState {
-  const exp = 42;
-  return {
-    profile: KIUN_PROFILE,
-    level: getLevelFromExp(exp),
-    exp,
-    expToNext: getExpToNext(exp),
-    hearts: 92,
-    energy: 68,
-    coins: 12450,
-    day: 1,
-    minutes: 8 * 60 + 45,
-    weekdayIndex: 3,
-    currentQuote: KIUN_PROFILE.quotes[0],
-    currentStatus: "오늘도 차분하게 시작할 준비 완료.",
-    selectedGalleryId: "room-ui",
-    stats: deepCloneStats(DEFAULT_STATS),
-    inventory: STARTER_INVENTORY.map((item) => ({ ...item })),
-    gallery: GALLERY_IMAGES.map((item) => ({ ...item })),
-    achievements: [],
-    lastActivity: undefined,
-    logs: [
-      {
-        id: "init-log",
-        day: 1,
-        time: "08:45",
-        text: "이기운 키우기를 시작했다.",
-        type: "system",
-      },
-    ],
-  };
-}
-
-export function runActivity(state: GameState, activity: Activity): GameState {
-  let next: GameState = {
-    ...state,
-    stats: deepCloneStats(state.stats),
-    inventory: state.inventory.map((item) => ({ ...item })),
-    gallery: state.gallery.map((item) => ({ ...item })),
-    logs: [...state.logs],
-    achievements: [...state.achievements],
-  };
-
-  next.minutes += activity.duration;
-  while (next.minutes >= 24 * 60) {
-    next.minutes -= 24 * 60;
-    next.day += 1;
-    next.weekdayIndex = (next.weekdayIndex + 1) % WEEKDAYS.length;
-  }
-
-  next.energy = clamp(next.energy + activity.energyDelta, 0, MAX_METER);
-  next.hearts = clamp(next.hearts + activity.heartDelta, 0, MAX_METER);
-  next.coins = Math.max(0, next.coins + activity.coinDelta);
-  next.exp += activity.expGain;
-  next.level = getLevelFromExp(next.exp);
-  next.expToNext = getExpToNext(next.exp);
-  next.currentStatus = activity.message;
-  next.currentQuote = pickQuote(next.day + next.minutes + next.exp);
-  next.lastActivity = activity.id;
-  next.stats = updateStats(next.stats, activity.statChanges);
-  next.inventory = updateInventory(next.inventory, activity.inventoryChanges);
-
-  next.logs.unshift(
-    makeLog(next, `${activity.emoji} ${activity.label}: ${activity.message}`, "activity")
-  );
-
-  const event = rollEvent(next, activity);
-  if (event) {
-    next.stats = updateStats(next.stats, event.statChanges ?? {});
-    next.energy = clamp(next.energy + (event.energyDelta ?? 0), 0, MAX_METER);
-    next.hearts = clamp(next.hearts + (event.heartDelta ?? 0), 0, MAX_METER);
-    next.coins = Math.max(0, next.coins + (event.coinDelta ?? 0));
-    next.exp += event.expGain ?? 0;
-    next.level = getLevelFromExp(next.exp);
-    next.expToNext = getExpToNext(next.exp);
-    next.inventory = updateInventory(next.inventory, event.inventoryChanges);
-    next.logs.unshift(makeLog(next, `✨ ${event.title}: ${event.description}`, "event"));
-  }
-
-  next.achievements = buildAchievements(next);
-  next.logs = next.logs.slice(0, 16);
-
-  return next;
-}
-
-export function getWeekdayLabel(index: number) {
-  return WEEKDAYS[index] ?? WEEKDAYS[0];
-}
-</file>
-
-<file path="src/utils/storage.ts">
-import { GameState } from "../types/game";
-
-const STORAGE_KEY = "kiun-raising-game-state";
-
-export function loadGameState(): GameState | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as GameState;
-  } catch {
-    return null;
-  }
-}
-
-export function saveGameState(state: GameState) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // 저장 실패 시 조용히 무시
-  }
-}
-</file>
-
-<file path="src/App.tsx">
-import "./index.css";
-import { ActionPanel } from "./components/ActionPanel";
-import { CharacterStage } from "./components/CharacterStage";
-import { GalleryPanel } from "./components/GalleryPanel";
-import { InventoryPanel } from "./components/InventoryPanel";
-import { LogPanel } from "./components/LogPanel";
-import { StatPanel } from "./components/StatPanel";
-import { TopBar } from "./components/TopBar";
-import { useKiunGame } from "./hooks/useKiunGame";
-
-function App() {
-  const {
-    state,
-    availableActivities,
-    performActivity,
-    selectGallery,
-    rotateQuote,
-    resetGame,
-  } = useKiunGame();
-
-  return (
-    <div className="app-shell">
-      <TopBar state={state} />
-
-      <div className="main-grid">
-        <aside className="left-column">
-          <StatPanel state={state} />
-          <LogPanel state={state} />
-        </aside>
-
-        <main className="center-column">
-          <CharacterStage state={state} onRotateQuote={rotateQuote} />
-          <ActionPanel activities={availableActivities} onPerformActivity={performActivity} />
-        </main>
-
-        <aside className="right-column">
-          <GalleryPanel state={state} onSelectGallery={selectGallery} />
-          <InventoryPanel state={state} />
-        </aside>
-      </div>
-
-      <footer className="footer-bar card">
-        <div className="footer-left">
-          <div>
-            <div className="eyebrow">프로젝트 방향</div>
-            <strong>이기운의 특징을 반영한 육성형 시뮬레이션</strong>
-          </div>
-          <p className="muted">
-            차분함, 몰입, 커피, 독서, 코딩, 음악, 정돈된 공간감, 검정 계열 스타일을
-            핵심 키워드로 설계됨.
-          </p>
-        </div>
-
-        <div className="footer-actions">
-          <button className="secondary-button" onClick={rotateQuote}>
-            한마디 새로고침
-          </button>
-          <button className="danger-button" onClick={resetGame}>
-            저장 초기화
-          </button>
-        </div>
-      </footer>
-    </div>
-  );
-}
-
-export default App;
-</file>
-
-<file path="src/index.css">
-:root {
-  font-family: Inter, Pretendard, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-  color: #f4efe8;
-  background:
-    radial-gradient(circle at top, rgba(129, 92, 57, 0.24), transparent 35%),
-    linear-gradient(180deg, #1a1512 0%, #100d0b 100%);
-  color-scheme: dark;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body,
-#root {
-  margin: 0;
-  min-height: 100%;
-}
-
-body {
-  min-height: 100vh;
-}
-
-button {
-  font: inherit;
-}
-
-img {
-  display: block;
-  max-width: 100%;
-}
-
-.app-shell {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+interface ImportMetaEnv {
+  readonly BASE_URL: string;
 }
 
-.card {
-  background: rgba(39, 30, 25, 0.82);
-  border: 1px solid rgba(255, 240, 220, 0.12);
-  border-radius: 24px;
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
 }
-
-.topbar {
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.topbar-profile {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-width: 0;
-}
-
-.avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: linear-gradient(135deg, #6e5443, #2a211c);
-  border: 2px solid rgba(255, 229, 198, 0.2);
-  display: grid;
-  place-items: center;
-  font-size: 28px;
-  font-weight: 800;
-  color: #ffe0bc;
-  flex-shrink: 0;
-}
-
-.avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.topbar-profile-text h1 {
-  margin: 2px 0 8px;
-  font-size: 30px;
-}
-
-.eyebrow {
-  color: #d6b487;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.exp-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 260px;
-}
-
-.exp-row span {
-  font-size: 13px;
-  color: #d8cfc6;
-  white-space: nowrap;
-}
-
-.topbar-resources {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-.resource-chip {
-  padding: 12px 16px;
-  border-radius: 16px;
-  background: rgba(255, 246, 234, 0.06);
-  border: 1px solid rgba(255, 232, 205, 0.12);
-  min-width: 150px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.resource-chip span {
-  font-size: 12px;
-  color: #d4bda2;
-}
-
-.resource-chip strong {
-  font-size: 18px;
-}
-
-.main-grid {
-  display: grid;
-  grid-template-columns: 320px 1fr 380px;
-  gap: 20px;
-  align-items: start;
-}
-
-.left-column,
-.center-column,
-.right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.section-card {
-  padding: 18px;
-}
-
-.section-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.section-title-row h2 {
-  margin: 0;
-  font-size: 20px;
-}
-
-.section-subtle,
-.muted {
-  color: #b9a99b;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.stat-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.stat-item {
-  padding: 12px;
-  background: rgba(255, 246, 234, 0.04);
-  border: 1px solid rgba(255, 238, 216, 0.08);
-  border-radius: 16px;
-}
-
-.stat-item-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
-.stat-item-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-}
-
-.stat-icon {
-  font-size: 18px;
-}
-
-.stat-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #dbc8b5;
-  font-size: 13px;
-}
-
-.bar {
-  width: 100%;
-  height: 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  overflow: hidden;
-}
-
-.bar-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #ffcf93, #f5a45b);
-}
-
-.exp-fill {
-  background: linear-gradient(90deg, #ad7cff, #ef9cff);
-}
-
-.stage-card {
-  padding: 20px;
-}
-
-.stage-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: flex-start;
-  margin-bottom: 18px;
-}
-
-.stage-top h2 {
-  margin: 4px 0;
-  font-size: 26px;
-}
-
-.secondary-button,
-.danger-button {
-  border: 0;
-  border-radius: 14px;
-  padding: 12px 16px;
-  cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.secondary-button:hover,
-.danger-button:hover,
-.action-card:hover,
-.gallery-card:hover {
-  transform: translateY(-2px);
-}
-
-.secondary-button {
-  background: #dcb789;
-  color: #271d16;
-  font-weight: 700;
-}
-
-.danger-button {
-  background: #9b5555;
-  color: white;
-  font-weight: 700;
-}
-
-.stage-main {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 18px;
-  align-items: stretch;
-}
-
-.stage-image-wrap {
-  min-height: 520px;
-  border-radius: 24px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 244, 229, 0.08);
-}
-
-.stage-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.stage-info {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.speech-bubble,
-.quote-box,
-.profile-box,
-.mini-card {
-  background: rgba(255, 247, 237, 0.05);
-  border: 1px solid rgba(255, 240, 218, 0.08);
-  border-radius: 18px;
-}
-
-.speech-bubble {
-  padding: 16px 18px;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #fff1e1;
-}
-
-.quote-box,
-.profile-box {
-  padding: 16px 18px;
-}
-
-.quote-box p,
-.profile-box p {
-  margin: 8px 0 0;
-  line-height: 1.7;
-  color: #ebdfd2;
-}
-
-.tag-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.tag {
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(230, 187, 135, 0.14);
-  border: 1px solid rgba(235, 200, 154, 0.18);
-  color: #f6d9b5;
-  font-size: 13px;
-}
-
-.achievement-tag {
-  background: rgba(255, 223, 123, 0.12);
-  color: #ffe08a;
-}
-
-.mini-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.mini-card {
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.mini-card strong {
-  color: #ffe0bc;
-}
-
-.mini-card span {
-  color: #d9c9bc;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.action-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.action-card {
-  text-align: left;
-  border: 1px solid rgba(255, 235, 214, 0.08);
-  background: linear-gradient(180deg, rgba(255, 240, 219, 0.07), rgba(255, 240, 219, 0.04));
-  border-radius: 18px;
-  padding: 16px;
-  color: inherit;
-  cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease;
-}
-
-.action-card:hover {
-  border-color: rgba(255, 206, 142, 0.4);
-}
-
-.action-card-top {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.action-emoji {
-  font-size: 28px;
-}
-
-.action-title-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.action-title-wrap span {
-  color: #c9b6a4;
-  font-size: 12px;
-}
-
-.action-card p {
-  margin: 0 0 12px;
-  color: #d9cbc0;
-  line-height: 1.6;
-  min-height: 48px;
-}
-
-.action-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  color: #f0d3ab;
-  font-size: 12px;
-}
-
-.inventory-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.inventory-card {
-  padding: 14px;
-  border-radius: 16px;
-  background: rgba(255, 250, 243, 0.05);
-  border: 1px solid rgba(255, 240, 220, 0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.inventory-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.inventory-icon {
-  font-size: 20px;
-}
-
-.inventory-count {
-  color: #ffdaa9;
-  font-weight: 700;
-}
-
-.inventory-card p {
-  margin: 0;
-  color: #cdbdaf;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.achievement-box {
-  margin-top: 16px;
-}
-
-.achievement-box h3 {
-  margin: 0 0 10px;
-}
-
-.log-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 520px;
-  overflow: auto;
-  padding-right: 4px;
-}
-
-.log-item {
-  padding: 12px 14px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 240, 220, 0.08);
-  background: rgba(255, 250, 243, 0.04);
-}
-
-.log-activity {
-  border-left: 4px solid #c98a49;
-}
-
-.log-event {
-  border-left: 4px solid #9d7aff;
-}
-
-.log-system {
-  border-left: 4px solid #6db3ff;
-}
-
-.log-meta {
-  display: flex;
-  gap: 10px;
-  color: #c6b19b;
-  font-size: 12px;
-  margin-bottom: 6px;
-}
-
-.log-item p {
-  margin: 0;
-  line-height: 1.6;
-  color: #e8dccf;
-}
-
-.gallery-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.gallery-card {
-  border: 1px solid rgba(255, 235, 214, 0.08);
-  background: rgba(255, 248, 238, 0.05);
-  color: inherit;
-  border-radius: 18px;
-  overflow: hidden;
-  cursor: pointer;
-  text-align: left;
-}
-
-.gallery-card.active {
-  border-color: #f4c58d;
-  box-shadow: 0 0 0 1px rgba(244, 197, 141, 0.4);
-}
-
-.gallery-card img {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-}
-
-.gallery-card-body {
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.gallery-card-body span {
-  color: #bca894;
-  text-transform: capitalize;
-  font-size: 12px;
-}
-
-.footer-bar {
-  padding: 18px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.footer-left {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.footer-left p {
-  margin: 0;
-}
-
-.footer-actions {
-  display: flex;
-  gap: 10px;
-}
-
-@media (max-width: 1280px) {
-  .main-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .left-column,
-  .center-column,
-  .right-column {
-    width: 100%;
-  }
-}
-
-@media (max-width: 980px) {
-  .topbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .topbar-resources {
-    justify-content: flex-start;
-  }
-
-  .stage-main {
-    grid-template-columns: 1fr;
-  }
-
-  .action-grid,
-  .gallery-grid,
-  .inventory-grid,
-  .mini-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .footer-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .footer-actions {
-    width: 100%;
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 640px) {
-  .app-shell {
-    padding: 14px;
-  }
-
-  .topbar-profile-text h1 {
-    font-size: 24px;
-  }
-
-  .stage-image-wrap {
-    min-height: 320px;
-  }
-}
-</file>
-
-<file path="src/main.tsx">
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
 </file>
 
 <file path=".gitignore">
@@ -2065,165 +110,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-</file>
-
-<file path="index.html">
-<!doctype html>
-<html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>이기운 키우기</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
-</file>
-
-<file path="package.json">
-{
-  "name": "kiun-raising-game",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "deploy": "tsc && vite build && gh-pages -d dist"
-  },
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
-  "devDependencies": {
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
-    "gh-pages": "^6.3.0",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.3"
-  }
-}
-</file>
-
-<file path="README.md">
-# 이기운 키우기
-
-이기운의 특징을 반영한 육성형 시뮬레이션 게임입니다. 차분함, 몰입, 커피, 독서, 코딩, 음악, 정돈된 공간감, 검정 계열 스타일을 핵심 키워드로 설계되었습니다.
-
-## 기능
-
-- **캐릭터 시스템**: 이기운의 성격, 취향, 특성을 반영한 프로필
-- **스탯 시스템**: 집중력, 체력, 기분, 사회성, 코딩력, 유대감
-- **행동 시스템**: 코딩, 독서, 커피, 운동, 식사, 휴식, 외출, 음악, 정리, 수면
-- **이벤트 시스템**: 행동에 따른 랜덤/준랜덤 이벤트
-- **인벤토리**: 아이템 수집 및 관리
-- **업적 시스템**: 성장에 따른 업적 달성
-- **갤러리**: 실사, 도트, 감정 시트, UI 컨셉 이미지
-- **로그 시스템**: 행동과 이벤트 기록
-- **저장/복원**: localStorage를 통한 상태 지속
-- **반응형 UI**: 모바일 대응
-
-## 기술 스택
-
-- React 18
-- TypeScript
-- Vite
-- CSS (Custom Properties, Grid, Flexbox)
-
-## 설치
-
-```bash
-npm install
-```
-
-## 실행
-
-```bash
-npm run dev
-```
-
-## 빌드
-
-```bash
-npm run build
-```
-
-## 프리뷰
-
-```bash
-npm run preview
-```
-
-## 이미지 준비
-
-`public/assets/kiun/` 디렉토리에 아래 이미지들을 넣어주세요:
-
-- `real-1.jpg` - 대표 실사 프로필
-- `real-2.jpg` - 공간 감성 컷
-- `real-3.jpg` - 부드러운 표정 컷
-- `real-4.jpg` - 일상적인 순간 컷
-- `real-5.jpg` - 측면 컷
-- `emotion-sheet.png` - 감정 시트 이미지
-- `pixel-sprite.png` - 픽셀/도트 스프라이트 이미지
-- `room-ui.png` - 메인 게임 UI 컨셉 이미지
-
-## 프로젝트 구조
-
-```
-src/
-├── components/       # UI 컴포넌트
-│   ├── TopBar.tsx
-│   ├── StatPanel.tsx
-│   ├── CharacterStage.tsx
-│   ├── ActionPanel.tsx
-│   ├── InventoryPanel.tsx
-│   ├── LogPanel.tsx
-│   └── GalleryPanel.tsx
-├── data/            # 게임 데이터
-│   └── kiun.ts
-├── hooks/           # React Hooks
-│   └── useKiunGame.ts
-├── types/           # TypeScript 타입
-│   └── game.ts
-├── utils/           # 유틸리티 함수
-│   ├── game.ts
-│   └── storage.ts
-├── App.tsx          # 메인 앱 컴포넌트
-├── main.tsx         # 엔트리 포인트
-└── index.css        # 전역 스타일
-```
-
-## 캐릭터 설정
-
-캐릭터 데이터는 `src/data/kiun.ts`에서 수정할 수 있습니다:
-
-- `KIUN_PROFILE`: 캐릭터 프로필 (이름, 성격, 취향 등)
-- `DEFAULT_STATS`: 초기 스탯 값
-- `STARTER_INVENTORY`: 시작 인벤토리
-- `GALLERY_IMAGES`: 갤러리 이미지 목록
-- `ACTIVITIES`: 행동 정의
-
-## 게임 로직
-
-게임 로직은 `src/utils/game.ts`에 집중되어 있습니다:
-
-- `createInitialGameState()`: 초기 상태 생성
-- `runActivity()`: 행동 수행 및 상태 업데이트
-- `rollEvent()`: 랜덤 이벤트 처리
-- `buildAchievements()`: 업적 계산
-
-## 저장 시스템
-
-localStorage를 사용하여 게임 상태를 자동 저장합니다. 저장 키는 `kiun-raising-game-state`입니다.
-
-## 라이선스
-
-MIT
 </file>
 
 <file path="tsconfig.json">
@@ -2267,14 +153,1980 @@ MIT
 }
 </file>
 
+<file path=".github/workflows/deploy.yml">
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+</file>
+
+<file path="public/assets/kiun/README.md">
+이 디렉토리에 아래 이미지들을 넣어주세요.
+
+필수 파일명:
+
+1. real-1.jpg
+2. cover-art.png
+3. pixel-sprite.png
+4. emotion-sheet.png
+
+권장 매핑:
+
+- real-1.jpg : 대표 실사 프로필
+- cover-art.png : 이기운 키우기 커버/방 배경 이미지
+- pixel-sprite.png : 픽셀/도트 스프라이트 이미지
+- emotion-sheet.png : 감정 시트 이미지
+
+주의:
+- 코드에서는 위 파일명을 그대로 참조합니다.
+- 파일명이 다르면 src/App.tsx 의 ASSETS 경로를 수정하세요.
+- GitHub Pages 배포를 위해 vite.config.ts 의 base는 "./"로 설정합니다.
+
+추천:
+- cover-art.png는 넓은 16:9 이미지가 가장 좋습니다.
+- pixel-sprite.png는 "이기운 키우기 - Pixel Sprite Set" 이미지를 넣으면 됩니다.
+- emotion-sheet.png는 추후 이벤트 팝업/감정 컷 확장용입니다.
+</file>
+
+<file path="src/App.tsx">
+import "./index.css";
+import { useEffect, useMemo, useState } from "react";
+
+type StatKey = "focus" | "stamina" | "mood" | "social" | "coding";
+type ActionId = "coding" | "exercise" | "meal" | "rest" | "goout" | "sleep";
+
+interface Stat {
+  key: StatKey;
+  label: string;
+  icon: string;
+  level: number;
+  value: number;
+  colorClass: string;
+}
+
+interface InventoryItem {
+  id: string;
+  label: string;
+  icon: string;
+  count: number;
+  locked?: boolean;
+}
+
+interface Action {
+  id: ActionId;
+  label: string;
+  icon: string;
+  spriteClass: string;
+  bubble: string;
+  result: string;
+  energyDelta: number;
+  heartDelta: number;
+  coinDelta: number;
+  expGain: number;
+  statChanges: Partial<Record<StatKey, number>>;
+}
+
+interface MiniScene {
+  id: string;
+  label: string;
+  spriteClass: string;
+  bubble: string;
+  className: string;
+}
+
+interface GameState {
+  level: number;
+  exp: number;
+  expToNext: number;
+  hearts: number;
+  energy: number;
+  coins: number;
+  timeText: string;
+  weekday: string;
+  todayMessage: string;
+  currentBubble: string;
+  currentAction: ActionId | "idle";
+  stats: Stat[];
+  inventory: InventoryItem[];
+  achievements: string[];
+  eventNotice: string;
+}
+
+const STORAGE_KEY = "kiun-ui-life-sim-v1";
+
+function asset(path: string) {
+  return `${import.meta.env.BASE_URL}${path}`;
+}
+
+const ASSETS = {
+  profile: asset("assets/kiun/real-1.jpg"),
+  cover: asset("assets/kiun/cover-art.png"),
+  sprite: asset("assets/kiun/pixel-sprite.png"),
+  emotion: asset("assets/kiun/emotion-sheet.png"),
+};
+
+const INITIAL_STATS: Stat[] = [
+  {
+    key: "focus",
+    label: "집중력",
+    icon: "🧠",
+    level: 7,
+    value: 78,
+    colorClass: "blue",
+  },
+  {
+    key: "stamina",
+    label: "체력",
+    icon: "💪",
+    level: 6,
+    value: 64,
+    colorClass: "green",
+  },
+  {
+    key: "mood",
+    label: "기분",
+    icon: "🙂",
+    level: 6,
+    value: 72,
+    colorClass: "pink",
+  },
+  {
+    key: "social",
+    label: "사회성",
+    icon: "👥",
+    level: 5,
+    value: 48,
+    colorClass: "purple",
+  },
+  {
+    key: "coding",
+    label: "코딩력",
+    icon: "⌨️",
+    level: 8,
+    value: 86,
+    colorClass: "orange",
+  },
+];
+
+const INITIAL_INVENTORY: InventoryItem[] = [
+  { id: "laptop", label: "노트북", icon: "💻", count: 1 },
+  { id: "coffee", label: "아메리카노", icon: "☕", count: 7 },
+  { id: "book", label: "책", icon: "📘", count: 4 },
+  { id: "earphone", label: "이어폰", icon: "🎧", count: 1 },
+  { id: "plant", label: "식물", icon: "🪴", count: 2 },
+  { id: "locked", label: "Lv.10", icon: "🔒", count: 0, locked: true },
+];
+
+const ACTIONS: Action[] = [
+  {
+    id: "coding",
+    label: "코딩하기",
+    icon: "💻",
+    spriteClass: "sprite-coding",
+    bubble: "집중중...",
+    result: "코딩 2시간 완료. 오늘도 한 뼘 성장 중!",
+    energyDelta: -12,
+    heartDelta: 1,
+    coinDelta: 20,
+    expGain: 28,
+    statChanges: { focus: 6, coding: 8, mood: 1 },
+  },
+  {
+    id: "exercise",
+    label: "운동하기",
+    icon: "🏃",
+    spriteClass: "sprite-run",
+    bubble: "운동 완료!",
+    result: "몸을 움직였더니 머리도 맑아졌다.",
+    energyDelta: -10,
+    heartDelta: 2,
+    coinDelta: 0,
+    expGain: 18,
+    statChanges: { stamina: 8, mood: 5, social: 1 },
+  },
+  {
+    id: "meal",
+    label: "밥먹기",
+    icon: "🍚",
+    spriteClass: "sprite-meal",
+    bubble: "냠냠~",
+    result: "든든하게 먹었다. 에너지가 회복됐다.",
+    energyDelta: 18,
+    heartDelta: 2,
+    coinDelta: -8,
+    expGain: 8,
+    statChanges: { stamina: 4, mood: 4 },
+  },
+  {
+    id: "rest",
+    label: "쉬기",
+    icon: "🛋️",
+    spriteClass: "sprite-rest",
+    bubble: "쉬는 중",
+    result: "쉬는 것도 전략이다. 기분이 부드러워졌다.",
+    energyDelta: 14,
+    heartDelta: 3,
+    coinDelta: 0,
+    expGain: 7,
+    statChanges: { mood: 7, focus: -1 },
+  },
+  {
+    id: "goout",
+    label: "외출하기",
+    icon: "🚶",
+    spriteClass: "sprite-goout",
+    bubble: "다녀올게!",
+    result: "바깥 공기를 쐬고 왔다. 사회성이 올랐다.",
+    energyDelta: -8,
+    heartDelta: 2,
+    coinDelta: -10,
+    expGain: 16,
+    statChanges: { social: 8, mood: 4, focus: -1 },
+  },
+  {
+    id: "sleep",
+    label: "잠자기",
+    icon: "🌙",
+    spriteClass: "sprite-sleep",
+    bubble: "쿨쿨...",
+    result: "푹 잤다. 내일도 다시 성장할 수 있다.",
+    energyDelta: 28,
+    heartDelta: 4,
+    coinDelta: 0,
+    expGain: 10,
+    statChanges: { stamina: 6, mood: 6, focus: 2 },
+  },
+];
+
+const MINI_SCENES: MiniScene[] = [
+  {
+    id: "coding",
+    label: "코딩",
+    spriteClass: "sprite-coding",
+    bubble: "집중중...",
+    className: "mini-coding",
+  },
+  {
+    id: "meal",
+    label: "밥",
+    spriteClass: "sprite-meal",
+    bubble: "냠냠~",
+    className: "mini-meal",
+  },
+  {
+    id: "exercise",
+    label: "운동",
+    spriteClass: "sprite-happy",
+    bubble: "운동 완료!",
+    className: "mini-exercise",
+  },
+  {
+    id: "reading",
+    label: "독서",
+    spriteClass: "sprite-reading",
+    bubble: "독서 중",
+    className: "mini-reading",
+  },
+];
+
+function createInitialState(): GameState {
+  return {
+    level: 7,
+    exp: 235,
+    expToNext: 420,
+    hearts: 92,
+    energy: 68,
+    coins: 12450,
+    timeText: "PM 08:45",
+    weekday: "목요일",
+    todayMessage: "천천히 해도 괜찮아,\n꾸준히 가는 게 중요해.",
+    currentBubble: "오늘도 한 뼘 성장 중!",
+    currentAction: "idle",
+    stats: INITIAL_STATS.map((stat) => ({ ...stat })),
+    inventory: INITIAL_INVENTORY.map((item) => ({ ...item })),
+    achievements: ["다음 레벨 보상"],
+    eventNotice: "",
+  };
+}
+
+function loadState(): GameState {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return createInitialState();
+
+    const parsed = JSON.parse(saved) as GameState;
+
+    return {
+      ...createInitialState(),
+      ...parsed,
+      stats: parsed.stats?.length ? parsed.stats : INITIAL_STATS.map((stat) => ({ ...stat })),
+      inventory: parsed.inventory?.length
+        ? parsed.inventory
+        : INITIAL_INVENTORY.map((item) => ({ ...item })),
+    };
+  } catch {
+    return createInitialState();
+  }
+}
+
+function clamp(value: number, min = 0, max = 100) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function signed(value: number) {
+  if (value > 0) return `+${value}`;
+  return String(value);
+}
+
+function updateStatLevels(stats: Stat[]) {
+  return stats.map((stat) => ({
+    ...stat,
+    level: Math.max(1, Math.floor(stat.value / 12) + 1),
+  }));
+}
+
+function addAchievement(state: GameState, achievement: string) {
+  if (state.achievements.includes(achievement)) return state.achievements;
+  return [...state.achievements, achievement];
+}
+
+function App() {
+  const [game, setGame] = useState<GameState>(() => loadState());
+  const [toast, setToast] = useState("");
+  const [isEventOpen, setIsEventOpen] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(game));
+  }, [game]);
+
+  useEffect(() => {
+    if (!toast) return;
+
+    const timer = window.setTimeout(() => {
+      setToast("");
+    }, 1800);
+
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const selectedAction = useMemo(() => {
+    return ACTIONS.find((action) => action.id === game.currentAction);
+  }, [game.currentAction]);
+
+  const expPercent = clamp((game.exp / game.expToNext) * 100);
+
+  function performAction(action: Action) {
+    setGame((prev) => {
+      let nextExp = prev.exp + action.expGain;
+      let nextLevel = prev.level;
+      let nextExpToNext = prev.expToNext;
+      let nextCoins = Math.max(0, prev.coins + action.coinDelta);
+      let nextAchievements = [...prev.achievements];
+      let levelUp = false;
+
+      while (nextExp >= nextExpToNext) {
+        nextExp -= nextExpToNext;
+        nextLevel += 1;
+        nextExpToNext = Math.floor(nextExpToNext * 1.18);
+        nextCoins += 300;
+        levelUp = true;
+      }
+
+      const nextStats = updateStatLevels(
+        prev.stats.map((stat) => {
+          const change = action.statChanges[stat.key] ?? 0;
+          return {
+            ...stat,
+            value: clamp(stat.value + change),
+          };
+        })
+      );
+
+      if (nextLevel >= 8) nextAchievements = addAchievement({ ...prev, achievements: nextAchievements }, "성장 가속");
+      if ((nextStats.find((stat) => stat.key === "coding")?.value ?? 0) >= 95) {
+        nextAchievements = addAchievement({ ...prev, achievements: nextAchievements }, "몰입 개발자");
+      }
+      if ((nextStats.find((stat) => stat.key === "focus")?.value ?? 0) >= 90) {
+        nextAchievements = addAchievement({ ...prev, achievements: nextAchievements }, "집중의 달인");
+      }
+      if (action.id === "sleep") {
+        nextAchievements = addAchievement({ ...prev, achievements: nextAchievements }, "회복도 실력");
+      }
+
+      const specialNotice = levelUp
+        ? `Lv.${nextLevel} 달성! 새로운 이벤트가 해금됩니다.` 
+        : action.result;
+
+      setToast(levelUp ? `레벨업! Lv.${nextLevel}` : action.result);
+
+      return {
+        ...prev,
+        level: nextLevel,
+        exp: nextExp,
+        expToNext: nextExpToNext,
+        hearts: clamp(prev.hearts + action.heartDelta),
+        energy: clamp(prev.energy + action.energyDelta),
+        coins: nextCoins,
+        currentAction: action.id,
+        currentBubble: action.bubble,
+        todayMessage: action.result,
+        stats: nextStats,
+        achievements: nextAchievements,
+        eventNotice: specialNotice,
+      };
+    });
+  }
+
+  function openEvent() {
+    setIsEventOpen(true);
+    setGame((prev) => {
+      const bonusCoins = 150 + prev.level * 20;
+      setToast(`이벤트 보상: 코인 +${bonusCoins}`);
+
+      return {
+        ...prev,
+        coins: prev.coins + bonusCoins,
+        hearts: clamp(prev.hearts + 3),
+        todayMessage: "작은 루틴이 위대한 성장으로 이어진다.",
+        currentBubble: "이벤트 보상 획득!",
+        achievements: addAchievement(prev, "이벤트 참여"),
+      };
+    });
+  }
+
+  function resetGame() {
+    const next = createInitialState();
+    setGame(next);
+    setToast("저장 데이터를 초기화했습니다.");
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  }
+
+  return (
+    <div
+      className="game-root"
+      style={
+        { "--sprite-image": `url(${ASSETS.sprite})` } as React.CSSProperties
+      }
+    >
+      <div
+        className="game-background"
+        style={{
+          backgroundImage: `linear-gradient(90deg, rgba(29, 22, 17, 0.22), rgba(29, 22, 17, 0.02)), url(${ASSETS.cover})`,
+        }}
+      />
+      <div className="game-vignette" />
+
+      <header className="top-hud">
+        <section className="profile-card hud-card">
+          <div className="profile-avatar">
+            <img
+              src={ASSETS.profile}
+              alt="이기운 프로필"
+              onError={(event) => {
+                event.currentTarget.style.display = "none";
+              }}
+            />
+            <span>이</span>
+          </div>
+          <div className="profile-main">
+            <div className="profile-title">
+              <span>Lv. {game.level}</span>
+              <strong>이기운</strong>
+            </div>
+            <div className="exp-line">
+              <small>
+                EXP {game.exp} / {game.expToNext}
+              </small>
+              <div className="mini-meter">
+                <div className="mini-meter-fill exp-fill" style={{ width: `${expPercent}%` }} />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="resource-row">
+          <div className="resource-chip hud-card">
+            <span className="resource-icon">❤️</span>
+            <strong>{game.hearts} / 100</strong>
+            <button type="button">+</button>
+          </div>
+          <div className="resource-chip hud-card">
+            <span className="resource-icon">⚡</span>
+            <strong>{game.energy} / 100</strong>
+            <button type="button">+</button>
+          </div>
+          <div className="resource-chip hud-card">
+            <span className="resource-icon">🪙</span>
+            <strong>{game.coins.toLocaleString()}</strong>
+            <button type="button">+</button>
+          </div>
+          <div className="time-chip hud-card">
+            <span>🌙</span>
+            <div>
+              <strong>{game.timeText}</strong>
+              <small>{game.weekday}</small>
+            </div>
+          </div>
+          <button className="setting-button hud-card" type="button" onClick={resetGame}>
+            ⚙️
+          </button>
+        </section>
+      </header>
+
+      <main className="game-screen">
+        <aside className="stat-panel panel-card">
+          <div className="panel-title">
+            <span>💗</span>
+            <h2>능력치</h2>
+          </div>
+
+          <div className="stat-list">
+            {game.stats.map((stat) => (
+              <div className="stat-item" key={stat.key}>
+                <div className="stat-head">
+                  <span className="stat-icon">{stat.icon}</span>
+                  <strong>{stat.label}</strong>
+                  <em>Lv. {stat.level}</em>
+                </div>
+                <div className="stat-body">
+                  <div className="stat-meter">
+                    <div
+                      className={`stat-meter-fill ${stat.colorClass}`}
+                      style={{ width: `${stat.value}%` }}
+                    />
+                  </div>
+                  <small>{stat.value} / 100</small>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="reward-box">
+            <div>
+              <strong>⭐ 다음 레벨 보상</strong>
+              <p>새로운 이벤트가 해금됩니다!</p>
+            </div>
+            <span>🎁</span>
+          </div>
+        </aside>
+
+        <section className="center-stage">
+          <div className="floating-status status-focus">
+            <span className="mini-sprite sprite-coding" />
+            <p>집중중...</p>
+          </div>
+
+          <div className="main-bubble">
+            {selectedAction ? selectedAction.bubble : game.currentBubble}
+          </div>
+
+          {MINI_SCENES.map((scene) => (
+            <div className={`mini-character ${scene.className}`} key={scene.id}>
+              <div className="mini-bubble">{scene.bubble}</div>
+              <span className={`mini-sprite ${scene.spriteClass}`} />
+            </div>
+          ))}
+        </section>
+
+        <aside className="inventory-area">
+          <section className="inventory-panel panel-card">
+            <div className="panel-title">
+              <span>💼</span>
+              <h2>소지품</h2>
+            </div>
+
+            <div className="inventory-grid">
+              {game.inventory.map((item) => (
+                <div className={`inventory-item ${item.locked ? "locked" : ""}`} key={item.id}>
+                  <div className="inventory-icon">{item.icon}</div>
+                  <strong>{item.label}</strong>
+                  {!item.locked && <small>x {item.count}</small>}
+                </div>
+              ))}
+            </div>
+
+            <button className="more-button" type="button">
+              더 보기 ›
+            </button>
+          </section>
+
+          <section className="message-panel panel-card">
+            <h3>💞 오늘의 한마디</h3>
+            <p>{game.todayMessage}</p>
+          </section>
+        </aside>
+      </main>
+
+      <nav className="bottom-actions">
+        <button className="side-button" type="button">
+          <span>📅</span>
+          <small>일정 보기</small>
+        </button>
+
+        <div className="action-row">
+          {ACTIONS.map((action) => (
+            <button
+              className={`action-button ${game.currentAction === action.id ? "active" : ""}`}
+              key={action.id}
+              type="button"
+              onClick={() => performAction(action)}
+            >
+              <span className={`action-sprite ${action.spriteClass}`} />
+              <strong>{action.label}</strong>
+              <small>
+                EXP +{action.expGain} · 에너지 {signed(action.energyDelta)}
+              </small>
+            </button>
+          ))}
+        </div>
+
+        <button className="side-button event-button" type="button" onClick={openEvent}>
+          <span>🎁</span>
+          <small>이벤트</small>
+          <i />
+        </button>
+      </nav>
+
+      {toast && <div className="toast">{toast}</div>}
+
+      {isEventOpen && (
+        <div className="modal-backdrop" onClick={() => setIsEventOpen(false)}>
+          <div className="event-modal" onClick={(event) => event.stopPropagation()}>
+            <button className="modal-close" type="button" onClick={() => setIsEventOpen(false)}>
+              ×
+            </button>
+            <div className="event-modal-icon">🌱</div>
+            <h2>작은 루틴 이벤트</h2>
+            <p>{game.eventNotice || "오늘도 한 뼘 성장했습니다."}</p>
+            <div className="event-modal-reward">
+              <span>보상</span>
+              <strong>코인 + 보너스 / 하트 +3</strong>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
+</file>
+
+<file path="src/index.css">
+:root {
+  font-family:
+    Pretendard,
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+  color: #4c3b31;
+  background: #17110e;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --brown-950: rgba(33, 25, 20, 0.88);
+  --brown-900: #2b211c;
+  --brown-800: #4d3c32;
+  --brown-700: #6e5749;
+  --cream-50: #fff9ef;
+  --cream-100: #f6e8d4;
+  --cream-200: #ead2b5;
+  --cream-300: #d6b892;
+  --gold: #f5c16f;
+  --pink: #f58ea5;
+  --green: #82cd71;
+  --blue: #74b7ed;
+  --purple: #b798ff;
+  --orange: #f0a14f;
+  --panel-shadow:
+    0 24px 54px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.game-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-width: 1180px;
+  min-height: 720px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.game-background {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 218, 161, 0.22), transparent 34%),
+    linear-gradient(135deg, #2f241e, #15100d 72%);
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.05) contrast(1.02);
+  transform: scale(1.012);
+}
+
+.game-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 52% 48%, transparent 0%, transparent 42%, rgba(0, 0, 0, 0.38) 100%),
+    linear-gradient(180deg, rgba(30, 22, 17, 0.1), rgba(16, 12, 10, 0.36));
+  pointer-events: none;
+}
+
+.top-hud {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  right: 22px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.hud-card,
+.panel-card,
+.bottom-actions {
+  background:
+    linear-gradient(180deg, rgba(255, 244, 229, 0.93), rgba(217, 190, 158, 0.92));
+  border: 3px solid rgba(87, 66, 52, 0.54);
+  box-shadow: var(--panel-shadow);
+  backdrop-filter: blur(16px);
+}
+
+.profile-card {
+  width: 404px;
+  height: 92px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px 12px 12px;
+}
+
+.profile-avatar {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #332720, #8a6a56);
+  border: 4px solid rgba(255, 248, 236, 0.88);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+.profile-avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-avatar span {
+  color: #fff2de;
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.profile-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.profile-title span {
+  color: #f2c16f;
+  font-size: 30px;
+  font-weight: 1000;
+  letter-spacing: -0.05em;
+  text-shadow: 0 2px 0 rgba(80, 52, 38, 0.25);
+}
+
+.profile-title strong {
+  color: #fff7ea;
+  font-size: 31px;
+  font-weight: 1000;
+  letter-spacing: -0.04em;
+  text-shadow:
+    0 2px 0 rgba(67, 48, 38, 0.72),
+    0 3px 6px rgba(0, 0, 0, 0.24);
+}
+
+.exp-line {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 9px;
+  align-items: center;
+}
+
+.exp-line small {
+  color: #e7d6c3;
+  font-size: 12px;
+  font-weight: 900;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.24);
+}
+
+.mini-meter {
+  position: relative;
+  height: 18px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(73, 58, 49, 0.54);
+  border: 2px solid rgba(255, 242, 225, 0.34);
+}
+
+.mini-meter-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+.exp-fill {
+  background: linear-gradient(90deg, #a178df, #e3a2d8);
+}
+
+.resource-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.resource-chip {
+  height: 70px;
+  min-width: 182px;
+  border-radius: 24px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 15px;
+}
+
+.resource-icon {
+  font-size: 35px;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.18));
+}
+
+.resource-chip strong {
+  color: #fff8ed;
+  font-size: 24px;
+  font-weight: 1000;
+  text-shadow:
+    0 2px 0 rgba(63, 46, 37, 0.6),
+    0 3px 8px rgba(0, 0, 0, 0.22);
+}
+
+.resource-chip button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(82, 62, 50, 0.44);
+  background: rgba(69, 52, 42, 0.62);
+  color: #fff1df;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.time-chip {
+  height: 70px;
+  min-width: 154px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 17px;
+}
+
+.time-chip > span {
+  font-size: 30px;
+}
+
+.time-chip div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.time-chip strong {
+  color: #fff4e7;
+  font-size: 17px;
+  font-weight: 1000;
+  text-shadow: 0 2px 0 rgba(67, 48, 38, 0.55);
+}
+
+.time-chip small {
+  color: #5b473b;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.setting-button {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid rgba(87, 66, 52, 0.54);
+  font-size: 31px;
+  cursor: pointer;
+}
+
+.game-screen {
+  position: absolute;
+  inset: 120px 22px 138px;
+  display: grid;
+  grid-template-columns: 330px 1fr 315px;
+  gap: 22px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.panel-card {
+  pointer-events: auto;
+  border-radius: 28px;
+  padding: 17px;
+}
+
+.stat-panel {
+  align-self: start;
+  min-height: 520px;
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.panel-title span {
+  font-size: 30px;
+}
+
+.panel-title h2 {
+  margin: 0;
+  color: #6a4d3d;
+  font-size: 26px;
+  font-weight: 1000;
+  letter-spacing: -0.05em;
+}
+
+.stat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat-item {
+  padding: 13px 14px;
+  border-radius: 18px;
+  background: rgba(68, 53, 44, 0.78);
+  border: 2px solid rgba(255, 244, 228, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.stat-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 9px;
+}
+
+.stat-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 23px;
+}
+
+.stat-head strong {
+  color: white;
+  font-size: 21px;
+  font-weight: 1000;
+  letter-spacing: -0.04em;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.stat-head em {
+  color: #ffe0a9;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.stat-body {
+  display: grid;
+  grid-template-columns: 1fr 62px;
+  align-items: center;
+  gap: 9px;
+}
+
+.stat-meter {
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(27, 22, 18, 0.76);
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-meter-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.stat-meter-fill.blue {
+  background: linear-gradient(90deg, #4fa9ee, var(--blue));
+}
+
+.stat-meter-fill.green {
+  background: linear-gradient(90deg, #6fcf6b, var(--green));
+}
+
+.stat-meter-fill.pink {
+  background: linear-gradient(90deg, #f57f9c, var(--pink));
+}
+
+.stat-meter-fill.purple {
+  background: linear-gradient(90deg, #9a77df, var(--purple));
+}
+
+.stat-meter-fill.orange {
+  background: linear-gradient(90deg, #e18a3c, var(--orange));
+}
+
+.stat-body small {
+  color: #e9d6bf;
+  font-size: 12px;
+  font-weight: 900;
+  text-align: right;
+}
+
+.reward-box {
+  margin-top: 15px;
+  padding: 13px 14px;
+  border-radius: 18px;
+  background: rgba(255, 248, 236, 0.68);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.reward-box strong {
+  display: block;
+  color: #8a623c;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.reward-box p {
+  margin: 0;
+  color: #9b7d65;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.reward-box > span {
+  font-size: 46px;
+  filter: drop-shadow(0 7px 8px rgba(0, 0, 0, 0.14));
+}
+
+.center-stage {
+  position: relative;
+  pointer-events: none;
+}
+
+.floating-status {
+  position: absolute;
+  width: 170px;
+  min-height: 94px;
+  padding: 8px;
+  border-radius: 18px;
+  background: rgba(255, 245, 232, 0.82);
+  border: 2px solid rgba(92, 69, 55, 0.28);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+.status-focus {
+  left: 7%;
+  top: 8%;
+}
+
+.floating-status p {
+  margin: 0;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: white;
+  color: #4d3e34;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.main-bubble {
+  position: absolute;
+  left: 50%;
+  top: 4%;
+  transform: translateX(-50%);
+  padding: 13px 18px;
+  border-radius: 18px;
+  background: rgba(85, 65, 51, 0.78);
+  border: 2px solid rgba(255, 241, 219, 0.38);
+  color: #fff8ed;
+  font-size: 17px;
+  font-weight: 900;
+  white-space: pre-line;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
+}
+
+.mini-character {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  animation: floatMini 3.6s ease-in-out infinite;
+}
+
+@keyframes floatMini {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.mini-coding {
+  left: 8%;
+  top: 13%;
+}
+
+.mini-meal {
+  left: 2%;
+  bottom: 12%;
+  animation-delay: -1.2s;
+}
+
+.mini-exercise {
+  right: 20%;
+  top: 9%;
+  animation-delay: -0.6s;
+}
+
+.mini-reading {
+  right: 11%;
+  bottom: 21%;
+  animation-delay: -1.8s;
+}
+
+.mini-bubble {
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 2px solid rgba(112, 89, 74, 0.2);
+  color: #514034;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.13);
+  white-space: nowrap;
+}
+
+.mini-sprite,
+.action-sprite {
+  display: block;
+  background-image: var(--sprite-image);
+  background-size: 720% 520%;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.2));
+}
+
+.mini-sprite {
+  width: 96px;
+  height: 96px;
+}
+
+.action-sprite {
+  width: 88px;
+  height: 88px;
+}
+
+.sprite-coding {
+  background-position: 8% 67%;
+}
+
+.sprite-run {
+  background-position: 57% 16%;
+}
+
+.sprite-meal {
+  background-position: 14% 92%;
+}
+
+.sprite-rest {
+  background-position: 86% 44%;
+}
+
+.sprite-goout {
+  background-position: 78% 16%;
+}
+
+.sprite-sleep {
+  background-position: 86% 44%;
+}
+
+.sprite-happy {
+  background-position: 50% 43%;
+}
+
+.sprite-reading {
+  background-position: 72% 43%;
+}
+
+.inventory-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-self: start;
+}
+
+.inventory-panel {
+  min-height: 466px;
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.inventory-item {
+  position: relative;
+  min-height: 112px;
+  padding: 12px 8px 9px;
+  border-radius: 14px;
+  background: rgba(255, 250, 241, 0.82);
+  border: 2px solid rgba(133, 102, 78, 0.2);
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.inventory-item.locked {
+  background: rgba(128, 107, 91, 0.48);
+  color: #fff3df;
+}
+
+.inventory-icon {
+  font-size: 38px;
+  line-height: 1;
+}
+
+.inventory-item strong {
+  color: #695041;
+  font-size: 15px;
+  font-weight: 1000;
+}
+
+.inventory-item.locked strong {
+  color: #fff4e4;
+}
+
+.inventory-item small {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  color: #79614f;
+  font-weight: 900;
+}
+
+.more-button {
+  width: 100%;
+  height: 56px;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #a68a73, #8f735e);
+  color: #fff5e8;
+  font-size: 22px;
+  font-weight: 1000;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26);
+}
+
+.message-panel {
+  min-height: 112px;
+}
+
+.message-panel h3 {
+  margin: 0 0 9px;
+  color: #7c5e4b;
+  font-size: 17px;
+  font-weight: 1000;
+}
+
+.message-panel p {
+  margin: 0;
+  padding: 13px 14px;
+  border-radius: 14px;
+  background: rgba(255, 250, 241, 0.76);
+  color: #604b3e;
+  font-size: 15px;
+  line-height: 1.58;
+  font-weight: 800;
+  white-space: pre-line;
+}
+
+.bottom-actions {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 22px;
+  z-index: 12;
+  min-height: 112px;
+  border-radius: 28px;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: 74px 1fr 74px;
+  align-items: center;
+  gap: 14px;
+}
+
+.side-button {
+  position: relative;
+  height: 86px;
+  border: 0;
+  border-radius: 18px;
+  background: rgba(88, 70, 58, 0.72);
+  color: #fff4e6;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  font-weight: 900;
+}
+
+.side-button span {
+  font-size: 31px;
+}
+
+.side-button small {
+  font-size: 11px;
+}
+
+.event-button i {
+  position: absolute;
+  right: 9px;
+  top: 9px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #ff5151;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6);
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.action-button {
+  position: relative;
+  height: 108px;
+  border: 3px solid rgba(112, 84, 65, 0.32);
+  border-radius: 23px;
+  background: linear-gradient(180deg, rgba(255, 250, 240, 0.94), rgba(236, 210, 181, 0.94));
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.54);
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 7px 8px 12px;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255, 204, 121, 0.82);
+  box-shadow:
+    0 18px 30px rgba(0, 0, 0, 0.2),
+    0 0 0 4px rgba(255, 207, 130, 0.2);
+}
+
+.action-button.active {
+  border-color: rgba(84, 132, 211, 0.88);
+  box-shadow:
+    0 14px 26px rgba(53, 103, 176, 0.28),
+    0 0 0 5px rgba(110, 168, 255, 0.22);
+}
+
+.action-button:nth-child(1) {
+  background: linear-gradient(180deg, #e9f4ff, #bcd7f5);
+}
+
+.action-button:nth-child(2) {
+  background: linear-gradient(180deg, #f0ffd9, #cae6a0);
+}
+
+.action-button:nth-child(3) {
+  background: linear-gradient(180deg, #fff1bb, #f3cd73);
+}
+
+.action-button:nth-child(4) {
+  background: linear-gradient(180deg, #efe4ff, #ccb7ef);
+}
+
+.action-button:nth-child(5) {
+  background: linear-gradient(180deg, #ffe0e8, #f4b2c1);
+}
+
+.action-button:nth-child(6) {
+  background: linear-gradient(180deg, #d8e9ff, #6b7fb1);
+}
+
+.action-button strong {
+  color: #6d4e3d;
+  font-size: 22px;
+  font-weight: 1000;
+  letter-spacing: -0.05em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.52);
+  white-space: nowrap;
+}
+
+.action-button small {
+  margin-top: 3px;
+  color: rgba(89, 64, 49, 0.72);
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 154px;
+  z-index: 40;
+  transform: translateX(-50%);
+  padding: 13px 20px;
+  border-radius: 999px;
+  background: rgba(255, 244, 219, 0.96);
+  border: 2px solid rgba(103, 74, 55, 0.34);
+  color: #694a36;
+  font-size: 16px;
+  font-weight: 1000;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.24);
+  animation: toastIn 0.2s ease both;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(7px);
+}
+
+.event-modal {
+  position: relative;
+  width: min(420px, calc(100vw - 34px));
+  padding: 30px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, #fff8ed, #e5caa6);
+  border: 3px solid rgba(94, 69, 52, 0.45);
+  color: #5b4132;
+  text-align: center;
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.36);
+}
+
+.modal-close {
+  position: absolute;
+  right: 18px;
+  top: 14px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(93, 70, 56, 0.16);
+  color: #6a4b39;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.event-modal-icon {
+  font-size: 58px;
+  margin-bottom: 8px;
+}
+
+.event-modal h2 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  letter-spacing: -0.05em;
+}
+
+.event-modal p {
+  margin: 0;
+  line-height: 1.6;
+  font-weight: 800;
+  white-space: pre-line;
+}
+
+.event-modal-reward {
+  margin-top: 20px;
+  padding: 13px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.55);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 900;
+}
+
+.event-modal-reward span {
+  color: #9f7654;
+}
+
+.event-modal-reward strong {
+  color: #5e3f2e;
+}
+
+@media (max-width: 1320px) {
+  .game-root {
+    min-width: 100vw;
+    min-height: 700px;
+  }
+
+  .resource-chip {
+    min-width: 142px;
+  }
+
+  .resource-chip strong {
+    font-size: 18px;
+  }
+
+  .game-screen {
+    grid-template-columns: 295px 1fr 285px;
+  }
+
+  .action-button strong {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 1080px) {
+  body {
+    overflow: auto;
+  }
+
+  .game-root {
+    min-height: 1180px;
+    height: auto;
+    overflow: hidden;
+  }
+
+  .top-hud {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    padding: 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .profile-card {
+    width: 100%;
+  }
+
+  .resource-row {
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .resource-chip,
+  .time-chip {
+    flex: 0 0 auto;
+  }
+
+  .game-screen {
+    position: relative;
+    inset: auto;
+    padding: 0 16px 150px;
+    grid-template-columns: 1fr;
+  }
+
+  .center-stage {
+    min-height: 460px;
+    order: -1;
+  }
+
+  .bottom-actions {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    grid-template-columns: 54px 1fr 54px;
+    min-height: 96px;
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .action-row {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+  }
+
+  .action-button {
+    flex: 0 0 118px;
+    height: 86px;
+    border-radius: 18px;
+  }
+
+  .action-sprite {
+    display: none;
+  }
+
+  .side-button {
+    height: 76px;
+  }
+
+  .mini-character {
+    transform: scale(0.82);
+  }
+
+  .mini-coding {
+    left: 6%;
+    top: 10%;
+  }
+
+  .mini-exercise {
+    right: 8%;
+    top: 12%;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-title strong {
+    font-size: 24px;
+  }
+
+  .profile-title span {
+    font-size: 24px;
+  }
+
+  .resource-row {
+    display: none;
+  }
+
+  .game-root {
+    min-height: 1100px;
+  }
+
+  .stat-panel,
+  .inventory-panel,
+  .message-panel {
+    border-radius: 22px;
+  }
+
+  .center-stage {
+    min-height: 390px;
+  }
+
+  .main-bubble {
+    top: 0;
+    font-size: 13px;
+  }
+
+  .floating-status {
+    display: none;
+  }
+
+  .mini-sprite {
+    width: 72px;
+    height: 72px;
+  }
+
+  .mini-bubble {
+    font-size: 11px;
+  }
+
+  .bottom-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .side-button {
+    display: none;
+  }
+}
+</file>
+
+<file path="src/main.tsx">
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+</file>
+
+<file path="package.json">
+{
+  "name": "kiun-raising-game",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "deploy": "tsc && vite build && gh-pages -d dist"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "gh-pages": "^6.3.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
+  }
+}
+</file>
+
+<file path="README.md">
+# 이기운 키우기
+
+GitHub Pages에서 돌아가는 정적 2D 육성 게임입니다.
+
+코딩하고, 쉬고, 밥 먹고, 운동하고, 외출하면서 이기운을 성장시키는 미니 라이프 시뮬레이션입니다.
+
+## 기능
+
+- 상단 HUD
+  - Lv
+  - EXP
+  - 하트
+  - 에너지
+  - 코인
+  - 시간
+- 좌측 능력치 패널
+  - 집중력
+  - 체력
+  - 기분
+  - 사회성
+  - 코딩력
+- 우측 소지품 패널
+- 오늘의 한마디
+- 하단 행동 버튼
+  - 코딩하기
+  - 운동하기
+  - 밥먹기
+  - 쉬기
+  - 외출하기
+  - 잠자기
+- 이벤트 보상
+- localStorage 자동 저장
+
+## 기술 스택
+
+- React 18
+- TypeScript
+- Vite
+- CSS
+
+## 설치
+
+```bash
+npm install
+```
+
+## 실행
+
+```bash
+npm run dev
+```
+
+## 빌드
+
+```bash
+npm run build
+```
+
+## 배포
+
+```bash
+npm run deploy
+```
+
+## 이미지 준비
+
+`public/assets/kiun/` 디렉토리에 아래 이미지들을 넣어주세요:
+
+- `real-1.jpg` - 대표 실사 프로필
+- `cover-art.png` - 메인 배경/커버 이미지
+- `pixel-sprite.png` - 픽셀/도트 스프라이트 이미지
+- `emotion-sheet.png` - 감정 시트 이미지
+
+## 프로젝트 구조
+
+```
+src/
+├── App.tsx
+├── main.tsx
+└── index.css
+```
+</file>
+
 <file path="vite.config.ts">
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/kiun-raising-game/",
+  base: "./",
 });
+</file>
+
+<file path="index.html">
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>이기운 키우기</title>
+    <meta
+      name="description"
+      content="코딩하고, 쉬고, 성장하는 나만의 캐릭터 육성 게임"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
 </file>
 
 </files>

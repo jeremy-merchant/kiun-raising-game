@@ -216,13 +216,6 @@ const MINI_SCENES: MiniScene[] = [
     className: "mini-coding",
   },
   {
-    id: "meal",
-    label: "밥",
-    spriteClass: "sprite-meal",
-    bubble: "냠냠~",
-    className: "mini-meal",
-  },
-  {
     id: "exercise",
     label: "운동",
     spriteClass: "sprite-happy",
@@ -363,7 +356,7 @@ function App() {
       }
 
       const specialNotice = levelUp
-        ? `Lv.${nextLevel} 달성! 새로운 이벤트가 해금됩니다.` 
+        ? `Lv.${nextLevel} 달성! 새로운 이벤트가 해금됩니다.`
         : action.result;
 
       setToast(levelUp ? `레벨업! Lv.${nextLevel}` : action.result);
@@ -520,11 +513,6 @@ function App() {
         </aside>
 
         <section className="center-stage">
-          <div className="floating-status status-focus">
-            <span className="mini-sprite sprite-coding" />
-            <p>집중중...</p>
-          </div>
-
           <div className="main-bubble">
             {selectedAction ? selectedAction.bubble : game.currentBubble}
           </div>
@@ -583,7 +571,7 @@ function App() {
               <span className={`action-sprite ${action.spriteClass}`} />
               <strong>{action.label}</strong>
               <small>
-                EXP +{action.expGain} · 에너지 {signed(action.energyDelta)}
+                EXP +{action.expGain} · EN {signed(action.energyDelta)}
               </small>
             </button>
           ))}
