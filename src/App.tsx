@@ -74,6 +74,29 @@ const ASSETS = {
   emotion: asset("assets/kiun/emotion-sheet.png"),
 };
 
+const UI_ICON_MAP = {
+  calendar: asset("assets/kiun/ui/icon-calendar.png"),
+  gift: asset("assets/kiun/ui/icon-gift.png"),
+};
+
+const ACTION_ICON_MAP: Record<ActionId, string> = {
+  coding: asset("assets/kiun/actions/action-coding.png"),
+  exercise: asset("assets/kiun/actions/action-exercise.png"),
+  meal: asset("assets/kiun/actions/action-meal.png"),
+  rest: asset("assets/kiun/actions/action-rest.png"),
+  goout: asset("assets/kiun/actions/action-goout.png"),
+  sleep: asset("assets/kiun/actions/action-sleep.png"),
+};
+
+const INVENTORY_ICON_MAP: Record<string, string> = {
+  laptop: asset("assets/kiun/items/item-laptop.png"),
+  coffee: asset("assets/kiun/items/item-coffee.png"),
+  book: asset("assets/kiun/items/item-book.png"),
+  earphone: asset("assets/kiun/items/item-earphone.png"),
+  plant: asset("assets/kiun/items/item-plant.png"),
+  locked: asset("assets/kiun/items/item-locked.png"),
+};
+
 const INITIAL_STATS: Stat[] = [
   {
     key: "focus",
@@ -316,6 +339,10 @@ function App() {
   }, [game.currentAction]);
 
   const expPercent = clamp((game.exp / game.expToNext) * 100);
+  const heroSpriteClass = selectedAction?.spriteClass ?? "sprite-idle";
+  const heroAchievements = game.achievements.slice(-3);
+  const heroCondition =
+    game.energy >= 75 ? "컨디션 좋음" : game.energy >= 40 ? "무난함" : "충전 필요";
 
   function performAction(action: Action) {
     setGame((prev) => {
@@ -450,17 +477,23 @@ function App() {
           <div className="resource-chip hud-card">
             <span className="resource-icon">❤️</span>
             <strong>{game.hearts} / 100</strong>
-            <button type="button">+</button>
+            <span className="resource-plus" aria-hidden="true">
+              +
+            </span>
           </div>
           <div className="resource-chip hud-card">
             <span className="resource-icon">⚡</span>
             <strong>{game.energy} / 100</strong>
-            <button type="button">+</button>
+            <span className="resource-plus" aria-hidden="true">
+              +
+            </span>
           </div>
           <div className="resource-chip hud-card">
             <span className="resource-icon">🪙</span>
             <strong>{game.coins.toLocaleString()}</strong>
-            <button type="button">+</button>
+            <span className="resource-plus" aria-hidden="true">
+              +
+            </span>
           </div>
           <div className="time-chip hud-card">
             <span>🌙</span>
@@ -513,8 +546,37 @@ function App() {
         </aside>
 
         <section className="center-stage">
+          <div className="stage-floor" />
+
           <div className="main-bubble">
             {selectedAction ? selectedAction.bubble : game.currentBubble}
+          </div>
+
+          <div className="hero-card panel-card">
+            <div className="hero-topline">
+              <span className="hero-pill">오늘의 상태 · {heroCondition}</span>
+              <span className="hero-pill subtle">
+                {selectedAction ? selectedAction.label : "루틴 준비 중"}
+              </span>
+            </div>
+
+            <div className="hero-avatar-shell">
+              <div className="hero-aura" />
+              <span className={`hero-sprite ${heroSpriteClass}`} />
+            </div>
+
+            <div className="hero-caption">
+              <strong>{selectedAction ? selectedAction.label : "오늘도 천천히 성장 중"}</strong>
+              <p>{game.eventNotice || game.todayMessage}</p>
+            </div>
+
+            <div className="hero-chip-row">
+              {heroAchievements.map((achievement) => (
+                <span className="hero-chip" key={achievement}>
+                  {achievement}
+                </span>
+              ))}
+            </div>
           </div>
 
           {MINI_SCENES.map((scene) => (
@@ -535,15 +597,20 @@ function App() {
             <div className="inventory-grid">
               {game.inventory.map((item) => (
                 <div className={`inventory-item ${item.locked ? "locked" : ""}`} key={item.id}>
-                  <div className="inventory-icon">{item.icon}</div>
+                  <div className="inventory-icon">
+                    <img
+                      src={INVENTORY_ICON_MAP[item.id] ?? INVENTORY_ICON_MAP.locked}
+                      alt=""
+                    />
+                  </div>
                   <strong>{item.label}</strong>
                   {!item.locked && <small>x {item.count}</small>}
                 </div>
               ))}
             </div>
 
-            <button className="more-button" type="button">
-              더 보기 ›
+            <button className="more-button more-button-muted" type="button" disabled>
+              보관함 정리됨
             </button>
           </section>
 
@@ -555,9 +622,11 @@ function App() {
       </main>
 
       <nav className="bottom-actions">
-        <button className="side-button" type="button">
-          <span>📅</span>
-          <small>일정 보기</small>
+        <button className="side-button is-muted" type="button" disabled>
+          <span className="side-button-art">
+            <img src={UI_ICON_MAP.calendar} alt="" />
+          </span>
+          <small>일정</small>
         </button>
 
         <div className="action-row">
@@ -568,7 +637,9 @@ function App() {
               type="button"
               onClick={() => performAction(action)}
             >
-              <span className={`action-sprite ${action.spriteClass}`} />
+              <span className="action-icon-frame">
+                <img className="action-icon-image" src={ACTION_ICON_MAP[action.id]} alt="" />
+              </span>
               <strong>{action.label}</strong>
               <small>
                 EXP +{action.expGain} · EN {signed(action.energyDelta)}
@@ -578,7 +649,9 @@ function App() {
         </div>
 
         <button className="side-button event-button" type="button" onClick={openEvent}>
-          <span>🎁</span>
+          <span className="side-button-art">
+            <img src={UI_ICON_MAP.gift} alt="" />
+          </span>
           <small>이벤트</small>
           <i />
         </button>
